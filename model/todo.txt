@@ -1,0 +1,73 @@
+TODO: clean up inflow documentation
+
+
+TODO: Read veg and microtopo from pklz files
+- create these files
+- save to pklz in 'veg' and 'coord' dirs?
+
+
+TODO: test flags
+- start with those listed in make_batches
+
+TODO: Automate error checks
+  - see check_fluxes notebook 
+  - also see SVE_v1/figures
+
+
+
+1. Patchy hydraulics.  
+    See "convey" series
+    Dig up initial outline
+    Math in SVE_documentation/patchy.txt
+    Start writing, or better lit review (i.e. clever papers from the 70s...)
+
+2. Trial run on Xue micro topography
+
+
+______
+
+TODO: solve to ponding problem
+
+TODO: test those side boundaries
+
+TODO: write a version that interfaces well with
+   - command line and not run in ||, just for debugging
+   - more compatible with a single simulation call (interface with non  parallel)
+ i.e. each stage separated out - write, submit, read...
+ should stay current with any model changes.
+      Batch write, read, etc. out of parallel, from command line.
+      As simple as "if name == main" updates?
+
+TODO: clean up dryG.for formatting strings.
+
+TODO: plot_3D_functions need documenting, option to scale flow height
+
+TODO: SVE_mass_check rename to plot_SVE_fluxes? plot_mass_check?
+
+TODO: specify roughness? stop assuming manning? Add m to param file 
+
+TODO:  update to new fortran (not fixed form)
+
+TODO: not that multiple vegetation and topo types are not possible
+
+
+TODO: edit function that reads in 'summary.txt'
+
+TODO: salvage any clever patch code from the roughness project.
+
+TODO: check that changing grid size doesn't break EVERYTHING
+
+SPATIAL INFILTRATION 
+- WATER RESOURCES
+
+- CONTRIBUTING AREA
+
+BULK RUNOFF COEFFICIENT FOR CONTRIBUTING AREA
+-  HOW MUCH RAIN SHOWS UP AS RUNOFF
+
+
+Analysis of runoff runoff units can help understand those things
+- numerical cases can probe the boundaries
+- unit based can fall apart
+
+

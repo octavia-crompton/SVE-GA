@@ -1,0 +1,6 @@
+fix the input stripe parameters,
+also, 
+we want to move AC_DC from v1 -  what is this a reference to ?
+
+
+WTF with the summary.out textfile. I don't like it.
