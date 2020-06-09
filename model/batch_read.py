@@ -89,6 +89,7 @@ def read_core(batch_dir, sim_path):
                       'boundary_flux_vol',
                       'rain_vol',
                       'flux1', 'flux2', 'flux3', 'flux4',
+                      'fluxin', 'hydro',
                       'mass_bal',
                       'infl_2d']
 
@@ -365,6 +366,8 @@ def get_h(path, nrow, ncol, dt_print):
     yflux1 = []
     yfluxdum1 = np.zeros([nrow, ncol])
 
+
+
     f = open("{0}/output/h.out".format(path), 'r')
     next(f)
     for line in f:
@@ -466,15 +469,15 @@ def lateral_fluxes(path):
 
     Notes:
     ------
-    Fortran output  stored in `fluxes1234.out` in units of m3,
-    converted here to m3/s
-
+    Fortran output  stored in `fluxes1234.out` in units of m3/s
     """
     t_h= []
     flux1 = []
     flux2 = []
     flux3 = []
     flux4 = []
+    fluxin = []
+    hydro = []
     f = open('{0}/output/fluxes1234.out'.format(path), 'r')
     next(f)
     for line in f:
@@ -485,11 +488,15 @@ def lateral_fluxes(path):
         flux2.append(a[2])
         flux3.append(a[3])
         flux4.append(a[4])
+        fluxin.append(a[5])
+        hydro.append(a[6])
 
     t_h = np.array(t_h)
     flux1 = np.array(flux1)
     flux2 = np.array(flux2)
     flux3 = np.array(flux3)
     flux4 = np.array(flux4)
+    fluxin = np.array(fluxin)
+    hydro = np.array(hydro)
 
-    return t_h, flux1, flux2, flux3, flux4
+    return t_h, flux1, flux2, flux3, flux4, fluxin, hydro

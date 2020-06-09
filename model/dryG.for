@@ -33,8 +33,8 @@ C     heading for volume tracking file (dvol.out)
       write(111,* )  "time (s)      vol               zflux         ",
      &                "     zinfl "
 C     heading for horizontal flux tracking file (fluxes1234.out)
-      write(110,* )  "      flux1               flux2        ",
-     &                "    flux3               flux4 "
+      write(110,203)  "t", "flux1", "flux2", "flux3", "flux4", 
+     &                "fluxin", "hydro"
 
       write(100, *) "   j   k    h              V               U ",
      &    "           zinflmap2        xflux0         yflux0",
@@ -45,6 +45,8 @@ C     Initialize boundary fluxes (m2/s)
       flux2 = 0.d0
       flux3 = 0.d0
       flux4 = 0.d0
+      fluxin = 0.d0
+      hydro = 0.d0
 C     Initialize gridlevel fluxes (m2/s)      
       xflux0 = 0.0
       yflux0 = 0.0
@@ -70,7 +72,9 @@ C     Track infiltration volume
       enddo 
       
 C     Write ICs to output files
-      write(110,202) t, flux1, flux2, flux3, flux4  ! fluxes1234.out
+C    fluxes1234.out
+      write(110,202) t, flux1, flux2, flux3, flux4, fluxin, hydro 
+
       write(111,200) t, dvol, zflux, zinfl  ! dvol.out
       call myoutput
       
@@ -98,21 +102,19 @@ C Loop over cells to compute fluxes.
           do l=1,inum(j,k)       
             if(ipos(j,k,l) .eq. 3) then
               call fluxes(j,j,k,k+1,2)       ! right boundaries. 
-C               flux3 =  flux3 + f(j,k+1,1,2)*ds(j,k+1,2)*dt
-                flux3 =  flux3 + f(j,k+1,1,2)*ds(j,k,2)*dt
+                flux3 =  flux3 + f(j,k+1,1,2)*ds(j,k+1,2)*dt
+                hydro =  hydro + f(j,k+1,1,2)*ds(j,k,2)*dt
             
             elseif(ipos(j,k,l) .eq. 2) then
               call fluxes(j,j+1,k,k,1)         ! lower boundaries.
-C               flux2 = flux2  + f(j+1,k,1,1)*ds(j+1,k,1)*dt
-                flux2 = flux2  + f(j,k,1,1)*ds(j+1,k,1)*dt
+                flux2 = flux2  + f(j+1,k,1,1)*ds(j+1,k,1)*dt                
             
             elseif(ipos(j,k,l) .eq. 1) then         ! left boundary
-C               flux1 = flux1 + f(j,k+1,1,2)*ds(j,k,2)*dt
-              flux1 = flux1 + f(j,k+1,1,2)*ds(j,k+1,2)*dt
+              flux1 = flux1 + f(j,k+1,1,2)*ds(j,k,2)*dt
+              fluxin = fluxin + f(j,k+1,1,2)*ds(j,k+1,2)*dt
             
             elseif(ipos(j,k,l) .eq. 4) then         ! top boundary
-C               flux4 = flux4 + f(j,k,1,1)*ds(j,k,1)*dt
-                flux4 = flux4 + f(j,k,2,1)*ds(j,k,1)*dt
+              flux4 = flux4 + f(j,k,1,1)*ds(j,k,1)*dt              
             endif
           enddo
 
@@ -199,6 +201,8 @@ C         Fluxes are positive  out of the domain
           flux2 = 0.d0
           flux3 = 0.d0
           flux4 = 0.d0
+          fluxin = 0.d0
+          hydro = 0.d0
           zinfl = 0.d0
           
           call myhydro
@@ -257,10 +261,10 @@ C         'output/h.out'
       
  200  format(' ', f8.1, 5e19.8)  ! for writing to dvol.out
  201  format(' ', 2i4, 8e15.6) ! format h.out
- 211  format(' ', 5A12 ) 
- 
- 202  format(' ', 5e19.8)  ! for writing fluxes to fluxes1234.out
 
+ 
+ 202  format(' ', 7e19.8)  ! for writing fluxes to fluxes1234.out
+ 203  format(' ', 6A19 ) ! format fluxes
  205  format(' ', i8, f9.2)
  
  204  format(' ', f10.2, f15.5)
