@@ -122,7 +122,7 @@ def read_core(batch_dir, sim_path):
                                                           dt_print=dt_print)
 
     # read boundary fluxes. units: m3
-    t_h, flux1, flux2, flux3, flux4 = lateral_fluxes(sim_path)
+    t_h, flux1, flux2, flux3, flux4, fluxin, hydro = lateral_fluxes(sim_path)
 
     # rain: m/s per second
     rain_series = np.zeros(len(t_h))

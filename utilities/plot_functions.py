@@ -1007,8 +1007,6 @@ def plot_inflowgraphs(core, trim = 0, nonzero=False, ax=None):
 """
 Parameter sensitivy plots
 """
-
-
 def plot_matched_hydrographs(core, match_var = "dt_sw", ):
     """
     Usage:
@@ -1036,22 +1034,23 @@ def plot_matched_hydrographs(core, match_var = "dt_sw", ):
         ax2 = axes2[i]
         key = subset.index[i]
         sim = subset.loc[key]
-        ax.plot(sim.t_h/60., sim.flux3*3.6e5/sim.Lx,
+        ax.plot(sim.t_h/60., sim.flux3/sim.dx**2,
                 label = "{0} = {1}".format(match_var, sim[match_var]))
         ax.set_xlabel("min")
 
         for other_val in match_vals[1:]:
 
-            params = extract_params(sim)
+            params = extract_match_params(sim)
             params[match_var] = other_val
             matched_sim = filter_core(core, params).iloc[0]
-            ax.plot(matched_sim.t_h/60, matched_sim.flux3*3.6e5/matched_sim.Ly,
+            ax.plot(matched_sim.t_h/60, matched_sim.flux3/matched_sim.dx**2,
                 label = "{0} = {1}".format(match_var, matched_sim[match_var]))
 
             tf = min(len(sim.flux3), len(matched_sim.flux3))
+            numer =  (sim.flux3[:tf]/sim.dx**2 - matched_sim.flux3[:tf]/matched_sim.dx**2)
+            denom = np.max(sim.flux3[:tf]/sim.dx**2)
             ax2.plot(sim.t_h[:tf]/60,
-                     (sim.flux3[:tf]/sim.Ly -
-                      matched_sim.flux3[:tf]/matched_sim.Ly)*3.6e5,
+                    numer/denom*100,
                      label = "{0} = {1}".format(match_var, matched_sim[match_var]))
 
     for i, ax in enumerate(axes[len(subset):]):
@@ -1060,23 +1059,20 @@ def plot_matched_hydrographs(core, match_var = "dt_sw", ):
     for i, ax2 in enumerate(axes2[len(subset):]):
         ax2.set_visible(False)
 
-    axes[0].set_ylabel("cm/hr")
-    axes[4].set_ylabel("cm/hr") if len(subset) > 4 else 0
-    axes2[0].set_ylabel("cm/hr")
-    axes2[4].set_ylabel("cm/hr") if len(subset) > 4 else 0
+    axes[0].set_ylabel("m/s")
+    axes[4].set_ylabel("m/s") if len(subset) > 4 else 0
+    axes2[0].set_ylabel("m/s")
+    axes2[4].set_ylabel("m/s") if len(subset) > 4 else 0
 
     axes[0].legend()
     axes2[0].legend()
     return fig, fig2
 
 
-def extract_params(sim):
+def extract_match_params(sim):
     """
     Return sim parameters in a dictionary
 
-    Note:
-        DO not include flags
-        TODO: ADD a list of "ignore" fields
     """
     keys = ['q1_m2hr', 'Ks', 'dt_sw', 'tr', 'p', 'tmax_scale', 'dt_print',
             'save_fluxes', 'save_sve', 'dx',
@@ -1085,6 +1081,7 @@ def extract_params(sim):
             'topo', 'So', 'imodel', 's_scale', 'theta_r', 'theta_s',
             'theta_i', 'H_i', 'Ao', 'scheme', 'alpha', 'alphaB',
             'itype1', 'itype3', 'itype2', 'itype4',  'epsh']
+
     params = {}
     for key in keys:
         if key in sim.keys():

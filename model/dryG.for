@@ -16,7 +16,7 @@ C     Output files: saved every nprt time steps (dt_p seconds)
       open(100,file = 'output/h.out')                
       open(101,file = 'output/time.out')        
       open(102,file = 'summary.txt')  
-C       open(103,file = 'summary.txt')                   
+             
       open(104,file = 'output/hydro.out')
       open(110,file = 'output/fluxes1234.out')   ! boundary fluxes      
       open(111,file = 'output/dvol.out') ! SVE volume tracking              
@@ -103,14 +103,14 @@ C Loop over cells to compute fluxes.
             if(ipos(j,k,l) .eq. 3) then
               call fluxes(j,j,k,k+1,2)       ! right boundaries. 
                 flux3 =  flux3 + f(j,k+1,1,2)*ds(j,k+1,2)*dt
-                hydro =  hydro + f(j,k+1,1,2)*ds(j,k,2)*dt
+                hydro =  hydro + f(j,k,1,2)*ds(j,k,2)*dt
             
             elseif(ipos(j,k,l) .eq. 2) then
               call fluxes(j,j+1,k,k,1)         ! lower boundaries.
                 flux2 = flux2  + f(j+1,k,1,1)*ds(j+1,k,1)*dt                
             
             elseif(ipos(j,k,l) .eq. 1) then         ! left boundary
-              flux1 = flux1 + f(j,k+1,1,2)*ds(j,k,2)*dt
+              flux1 = flux1 + f(j,k,1,2)*ds(j,k,2)*dt
               fluxin = fluxin + f(j,k+1,1,2)*ds(j,k+1,2)*dt
             
             elseif(ipos(j,k,l) .eq. 4) then         ! top boundary
@@ -195,7 +195,9 @@ C         Sum of all lateral fluxes at boundaries
           zflux =   flux2 + flux3 - flux4  - flux1
 C         Fluxes are positive  out of the domain
           write(111,200) t, dvol, zflux, zinfl ! dvol.out
-          write(110,202) t, flux1, flux2, flux3, flux4  !fluxes1234.out    
+          write(110,202) t, flux1, flux2, flux3, flux4, fluxin, hydro 
+
+C           write(110,202) t, flux1, flux2, flux3, flux4  !fluxes1234.out    
 
           flux1 = 0.d0
           flux2 = 0.d0
@@ -264,7 +266,7 @@ C         'output/h.out'
 
  
  202  format(' ', 7e19.8)  ! for writing fluxes to fluxes1234.out
- 203  format(' ', 6A19 ) ! format fluxes
+ 203  format(' ', 7A19 ) ! format fluxes
  205  format(' ', i8, f9.2)
  
  204  format(' ', f10.2, f15.5)
