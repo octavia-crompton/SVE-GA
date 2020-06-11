@@ -21,7 +21,6 @@ sys.path.append(project_dir)
 Search functions
 """
 
-
 def print_input_params(directory_name, include=None):
     """
 
@@ -197,7 +196,7 @@ def load_core(base_dir):
     return core
 
 
-def load_sims(sim_dir):
+def load_sims(sim_dir, summarize = True):
     """
     Loads simulations from base_core or from batch_core
     """
@@ -205,7 +204,8 @@ def load_sims(sim_dir):
         core = load_core(sim_dir)
     else:
         core = load_batches(sim_dir)
-    core = summary_update(core)
+    if summarize:
+        core = summary_update(core)
     return core
 
 
@@ -262,24 +262,11 @@ def summary_update(core):
     """
     Compute summary statistics
 
-    Returns: (adds columns)
-    --------
-    inflDveg : float
-        mean    infiltration depth in vegetated areas
-    infl_frac : float
-        infiltration fraction
-    inflD : float
-        mean infiltration depth (cm)
-    runtime_hr : float
-        runtime (hours)
-    i_tr :  int
-
-
     Usage:
     -----
     core = general_update(core)
     """
-
+    assert len(core.index )> 0, "No simulations found!"
     for key in core.index:
         sim = core.loc[key]
 
@@ -307,7 +294,6 @@ def summary_update(core):
         core.at[key, 'time2peak90'] = get_rising_time(sim.t_h, sim.flux3)
         core.at[key, 'time2min10'] = get_falling_time(sim.t_h, sim.flux3,
                                                       sim.t_rain)
-
         U_max = np.max(np.sqrt(sim.uc ** 2 + sim.vc ** 2), 0) * 100
 
         core.at[key, 'area'] = sim.Lx * sim.Ly
@@ -364,8 +350,53 @@ def check_hydro(sim):
     return quality
 
 
+
 """
-Runoff runon functions
+Gui functions
+"""
+def get_name_vars(base_dir):
+    """
+    Get names of parameters in factorial combinations
+    """
+    all_params = load_all_params(base_dir)
+    batch_vars = [key for key, val in all_params['batch_dict'].items() if len(val) > 1]
+    sim_vars = [key for key, val in all_params['sim_dict'].items() if len(val) > 1]
+
+    name_vars = batch_vars + sim_vars
+    return name_vars
+
+
+
+def get_name_tuples(core, name_vars):
+    """
+    Return (name, key) tuple list
+    """
+    names = []
+    for key in core.index:
+        sim = core.loc[key]
+        name = ", ".join([ "{0}={1}".format(name_var, sim[name_var]) for name_var in name_vars])
+        names.append((name, key))
+    return names
+
+
+def add_pretty_name(core, name_vars):
+    """
+    Add "pretty" name to sims
+
+    Usage:
+    ------
+    core = add_pretty_name(core, name_vars)
+    """
+    for key in core.index:
+        sim = core.loc[key]
+        name = ", ".join([ "{0}={1}".format(name_var, sim[name_var]) for name_var in name_vars])
+        core.loc[key, "pretty"] = name
+
+    return core
+
+
+"""
+Runoff-runon functions
 """
 
 

@@ -286,7 +286,7 @@ def update_params(params):
         params['Ly'] = params['nrow'] * params['dx']
     else:
         params['ncol'] = int(params['Lx'] / params['dx'])
-        params['nrow'] = int(params['Ly'] * params['dx'])
+        params['nrow'] = int(params['Ly'] / params['dx'])
 
     params['area'] = params['Lx']*params['Ly']
 
@@ -299,7 +299,7 @@ def update_params(params):
     nprt = int(np.maximum(params['dt_print'] / params['dt_sw'], 1))
     params['nprt'] = nprt
 
-    params['m'] = 2 / 3. # TODO: draw from dictionary
+    params['m'] = 2 / 3.
     params['mB'] = 2 / 3.
 
     params['eta'] = 1 / 2. if params['m'] != 2 else 1
