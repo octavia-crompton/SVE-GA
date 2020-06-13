@@ -14,7 +14,6 @@ from model.load_model_output import *
 from utilities.search_functions import *
 from utilities.plot_3D_functions import *
 
-
 def make_plots(base_name, project_name, sim_limit, verbose= False):
     """
     Plot hydrographs, check mass balance and fluxes.
@@ -30,19 +29,17 @@ def make_plots(base_name, project_name, sim_limit, verbose= False):
 
     base_fig_dir = os.path.join(figure_dir, base_name)
 
-    # Todo: add option to overwrite
-    # if os.path.isdir(base_fig_dir):
-    #     return
 
     core = load_sims(base_dir)
-    if (core.infl_frac.max() > 1.02) and (core.q1_m2hr > 0):
-       print(("Error in infiltration fraction  in:\n  " +  base_dir ))
+
+    # if (core.infl_frac.max() > 1.02) and (core.q1_m2hr > 0)
+    #    print(("Error in infiltration fraction  in:\n  " +  base_dir ))
 
     make_visual_dirs(base_dir, project_dir, core)
 
     # plot hydrographs
     fig, ax = plt.subplots(1)
-    ax = plot_hydrographs(core, ax)
+    fig, ax = plot_hydrographs(core, ax)
     path_to_figure = os.path.join(base_fig_dir, "hydrographs.png")
     fig.savefig(path_to_figure, filetype="png", dpi=150, bbox_inches="tight")
 
@@ -70,7 +67,8 @@ def make_plots(base_name, project_name, sim_limit, verbose= False):
             sim = subset.loc[key]
             batch_name, sim_name = sim.name.split('/')[:-1]
 
-            nested_figure_dir = os.path.join(base_fig_dir, batch_name, sim_name)
+            nested_figure_dir = os.path.join(base_fig_dir, batch_name, 
+                sim_name)
             visualize_single(sim, nested_figure_dir)
 
 
@@ -87,7 +85,8 @@ def visualize_batch(subset, batch_figure_dir):
     fig.savefig(path_to_figure, filetype="png", dpi=150, bbox_inches="tight")
 
     path_to_figure = os.path.join(batch_figure_dir, "veg_grid.png")
-    fig = plot_veg_grid(subset)
+    if (np.min(subset.fV) < 1) and (np.max(subset.fV) > 0):
+        fig = plot_veg_grid(subset)
     fig.savefig(path_to_figure, filetype="png", dpi=150, bbox_inches="tight")
 
     try:
@@ -138,7 +137,7 @@ def make_visual_dirs(base_dir, project_dir, core):
 
     param_file = os.path.join(base_dir, "all_params.json")
     base_figure_dir = os.path.join(figure_dir, base_name)
-    copied_param_file = os.path.join(base_figure_dir, "copied_params.json")
+    copied_param_file = os.path.join(base_figure_dir, "params.json")
 
     for batch_name in batch_names:
         if not os.path.isdir(base_figure_dir):
@@ -165,7 +164,9 @@ def make_animation_dir(base_dir, project_dir):
     return animation_dir
 
 if __name__ == '__main__':
-    # global project_dir, output_dir, figure_dir
+    """
+    global project_dir, output_dir, figure_dir
+    """
 
     parser = argparse.ArgumentParser()
 
@@ -173,8 +174,8 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--project_name", type=str, default="SVE_v2")
     parser.add_argument("-v", "--verbose", type= bool, default=True)
 
-    parser.add_argument("-l", "--sim_limit", type=int, help="limit simulations ",
-                        default=1)
+    parser.add_argument("-l", "--sim_limit", type=int, 
+        help="limit simulations ", default=1)
     args = parser.parse_args()
 
     base_name = args.base_name.replace('../', '')

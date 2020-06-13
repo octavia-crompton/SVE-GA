@@ -11,8 +11,10 @@ import matplotlib.pylab as plt
 import numpy as np
 from matplotlib import ticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import sys
+import os
 
-# sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(__file__))
 try:
     from model.load_model_output import *
 except ModuleNotFoundError:
@@ -57,7 +59,6 @@ linecycler = cycle(lines)
 
 def veg_points(veg, dx=1.0, veg_size=10, ax=None, alpha=0.75):
     """
-
     Parameters
     ----------
     veg
@@ -449,7 +450,6 @@ def plotUmax(sim):
     return fig, axes
 
 
-
 def triptych_micro(sim):
     """
     Plots microtopo in panel A, instead of vegetation
@@ -462,8 +462,6 @@ def triptych_micro(sim):
         axes[i].set_title(label, fontsize=16)
 
     ax = axes[0]
-
-    
     #micro = sim['zc'] + sim['xc'].mean(0)*sim['So']
     micro = sim['zc'] - sim['zc'].mean(0)
     colormap(sim, micro, ax=ax,
@@ -478,6 +476,7 @@ def triptych_micro(sim):
     ax = axes[2]
     U_max = np.max(np.sqrt(sim.uc ** 2 + sim.vc ** 2), 0) * 100
     U_max[-1, -1] = 0
+
     colormap(sim, U_max, ax=ax,
              clabel='velocity (cm/s)',
              colorbar=True, cmap="Blues",
@@ -526,7 +525,7 @@ def plot_hydrographs(core, nonzero=True, ax=None):
 
     ax.set_xlabel('minutes')
     ax.set_ylabel('cm/hr')
-    return ax
+    return fig, ax
 
 
 def plot_inflgraphs(core, nonzero=False, ax=None):
@@ -599,40 +598,38 @@ def plot_veg_grid(subset):
     -------
 
     """
-    if len(subset) > 20:
-        np.random.seed(0)
-        a = np.arange(len(subset))
-        # np.random.shuffle(a)
-        inds = a[:20]
+    
+    num_sim = len(subset)
 
-    else:
-        inds = np.arange(len(subset))
-    smplkeys = subset.iloc[inds].index
+    smplkeys = subset.index
+    num_col = min(4, len(subset))
+    num_row = int(np.ceil(num_sim / 1. / num_col))
 
-    fig, axes = plt.subplots(5, 4, figsize=(15, 12))
+    figsize = (num_col * 4, num_row * 2.2)
+    fig, axes = plt.subplots(num_row, num_col, figsize=figsize)
     plt.subplots_adjust(hspace=0.1)
+
     axes = axes.ravel()
 
-    for i, ax in enumerate(axes[:len(inds)]):
+    for i, ax in enumerate(axes[:num_sim]):
         key = smplkeys[i]
         sim = subset.loc[key]
-
+        if (sim.fV == 1) or (sim.fV == 0):
+            continue
         veg_pcolor(sim.veg, ax=ax)
-    for i, ax in enumerate(axes[len(inds):]):
+    for i, ax in enumerate(axes[num_sim:]):
         ax.set_visible(False)
     return fig
 
 
 def plot_infl_grid(subset):
     """
-
     Parameters
     ----------
     subset
 
     Returns
     -------
-
     """
     num_sim = len(subset)
 
@@ -653,13 +650,12 @@ def plot_infl_grid(subset):
         sim = subset.loc[key]
         ax, zinflplot = colormap(sim, sim.infl_2d, ax=ax, cmax=cmax,
                                  colorbar=False)
-
     for i, ax in enumerate(axes[num_sim:]):
         ax.set_visible(False)
 
     cbaxes = fig.add_axes([.91, 0.125, 0.013, 0.755])
     cb = fig.colorbar(zinflplot, cax=cbaxes, shrink=1)
-    cb.set_label('$I$ (g/m$^2$)', fontsize=18)
+    cb.set_label('$I$ (m)', fontsize=18)
     cb.ax.tick_params(labelsize=18)
 
     tick_locator = ticker.MaxNLocator(nbins=5)
@@ -667,7 +663,6 @@ def plot_infl_grid(subset):
     cb.update_ticks()
 
     return fig
-
 
 """
 SVE mass balance checks
@@ -744,7 +739,7 @@ def plot_fluxes(sim):
     ax = axes[0]
 
     scale = 3.6e5/sim.Lx/sim.Ly
-    ax.plot(sim.t_h / 60., sim.fluxin * scale, label="$1$")
+    ax.plot(sim.t_h / 60., sim.fluxin * scale,label="$1$")
     ax.plot(sim.t_h / 60., sim.flux2 * scale, label="$2$")
     ax.plot(sim.t_h / 60., sim.flux3 * scale, label="$3$")
     ax.plot(sim.t_h / 60., sim.flux4 * scale, label="$4$")
@@ -915,7 +910,6 @@ def plot_inflow(sim,  t_f = None, N_profile=5):
     """
     fig, ax = plt.subplots(1, figsize=(7, 4.5))
 
-    
     if t_f:
         inds = np.where(sim.t_print < t_f)[0]
     else:
@@ -1020,13 +1014,14 @@ def plot_matched_hydrographs(core, match_var = "dt_sw", ):
     num_col = min(4, len(subset))
     num_row = int(np.ceil(len(subset) / 1. / num_col))
 
-    figsize = (num_col * 4, num_row * 2.2)
-    fig, axes = plt.subplots(num_row, num_col, figsize=figsize, sharey = True)
-    plt.subplots_adjust(hspace=0.2)
+    figsize = (num_col * 4, num_row * 2.5)
+    fig, axes = plt.subplots(num_row, num_col,
+            figsize=figsize, sharey = True, sharex = True)
+    plt.subplots_adjust(hspace=0.3)
     axes = axes.ravel()
 
     fig2, axes2 = plt.subplots(num_row, num_col,
-        figsize=figsize, sharey = True)
+        figsize=figsize, sharey = True, sharex = True)
     plt.subplots_adjust(hspace=0.2)
     axes2 = axes2.ravel()
 
@@ -1034,21 +1029,21 @@ def plot_matched_hydrographs(core, match_var = "dt_sw", ):
         ax2 = axes2[i]
         key = subset.index[i]
         sim = subset.loc[key]
-        ax.plot(sim.t_h/60., sim.flux3/sim.dx**2,
+        ax.plot(sim.t_h/60., sim.flux3/sim.dx**0,
                 label = "{0} = {1}".format(match_var, sim[match_var]))
-        ax.set_xlabel("min")
+        ax.set_title(sim.pretty)
 
         for other_val in match_vals[1:]:
 
             params = extract_match_params(sim)
             params[match_var] = other_val
             matched_sim = filter_core(core, params).iloc[0]
-            ax.plot(matched_sim.t_h/60, matched_sim.flux3/matched_sim.dx**2,
+            ax.plot(matched_sim.t_h/60, matched_sim.flux3/matched_sim.dx**0,
                 label = "{0} = {1}".format(match_var, matched_sim[match_var]))
 
             tf = min(len(sim.flux3), len(matched_sim.flux3))
-            numer =  (sim.flux3[:tf]/sim.dx**2 - matched_sim.flux3[:tf]/matched_sim.dx**2)
-            denom = np.max(sim.flux3[:tf]/sim.dx**2)
+            numer =  (sim.flux3[:tf]/sim.dx**0 - matched_sim.flux3[:tf]/matched_sim.dx**0)
+            denom = np.max(sim.flux3[:tf]/sim.dx**0)
             ax2.plot(sim.t_h[:tf]/60,
                     numer/denom*100,
                      label = "{0} = {1}".format(match_var, matched_sim[match_var]))
@@ -1059,10 +1054,10 @@ def plot_matched_hydrographs(core, match_var = "dt_sw", ):
     for i, ax2 in enumerate(axes2[len(subset):]):
         ax2.set_visible(False)
 
-    axes[0].set_ylabel("m/s")
-    axes[4].set_ylabel("m/s") if len(subset) > 4 else 0
-    axes2[0].set_ylabel("m/s")
-    axes2[4].set_ylabel("m/s") if len(subset) > 4 else 0
+    axes[0].set_ylabel("m3/s")
+    axes[4].set_ylabel("m3/s") if len(subset) > 4 else 0
+    axes2[0].set_ylabel("% difference")
+    axes2[4].set_ylabel("% difference") if len(subset) > 4 else 0
 
     axes[0].legend()
     axes2[0].legend()

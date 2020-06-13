@@ -162,11 +162,11 @@ def make_batches(base_name, output_folder):
 
         #if os.path.isdir(batch_dir):
         #    os.system('rm -rf {0}'.format(batch_dir))
-
-        os.system('mkdir {0}'.format(batch_dir))
+        if not os.path.isdir(batch_dir):
+            os.system('mkdir {0}'.format(batch_dir))
         summary[batch_name] = {'rejected': [], 'failed': []}
-
-        if "global" in os.path.split(__file__)[0]:
+        
+        if "global" in file_path:        
             write_sbatch(base_dir, batch_name)
 
         sim_count = 0

@@ -13,8 +13,8 @@
         "dt_sw" : 0.001,
         "save_fluxes" : 1,
         "save_sve" : 1,
-        "ncol" : 50,
-        "nrow" : 4,
+        "Lx" : 50,
+        "Ly" : 4,
         "dx" : 1,
         "veg_type": "randv",
         "fV" : 1,
@@ -40,7 +40,7 @@
         "itype1" : 4,
         "itype3" : 0,
         "itype2" : 1,
-        "itype4" : 1,
+        "itype4" : 1,        
         "flags": [],
         "epsh" : 2e-4}
     }

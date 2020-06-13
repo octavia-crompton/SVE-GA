@@ -2,7 +2,7 @@
 """
 TODO: double check all of the axis orientations
 """
-from utilities.plot_functions import *
+from plot_functions import *
 from matplotlib import cm
 
 from mpl_toolkits.mplot3d import Axes3D

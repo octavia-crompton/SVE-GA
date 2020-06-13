@@ -14,8 +14,8 @@
         "dt_sw" : 0.01,
         "save_fluxes" : 1,
         "save_sve" : 1,
-        "ncol" : 10,
-        "nrow" : 20,
+        "Ly" : 10,
+        "Lx" : 20,
         "dx" : 1.0,     
         "veg_type": "randv",    
         "grad_fV" : 0,
@@ -40,7 +40,7 @@
         "itype3" : 0,
         "itype2" : 1,
         "itype4" : 1,
-        "equiv_q1" : 0,
+        "q1_m2hr" : 0,
         "flags": [],
         "epsh" : 2e-4
          }

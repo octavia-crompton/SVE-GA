@@ -34,8 +34,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("project_name", type = str)
-    parser.add_argument("-l", "--sim_limit", type=int, help="limit simulations ",
-                        default=1)
+    parser.add_argument("-l", "--sim_limit", type=int, help=
+        "limit simulations" ,default=1)
     args = parser.parse_args()
 
     project_name = args.project_name
