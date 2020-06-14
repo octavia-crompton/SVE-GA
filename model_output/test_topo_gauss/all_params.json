@@ -3,7 +3,7 @@
         "p" : [2.0]
         },
       "sim_dict" : {
-           "m_scale" : [1, 10],
+           "m_scale" : [1, 5],
            "m_sigma" : [2, 10]
         },
    "common_dict" : {
@@ -13,7 +13,7 @@
         "dt_sw" : 0.0005,
         "save_fluxes" : 1,
         "save_sve" : 1,
-        "Lx" : 80,
+        "Lx" : 40,
         "Ly" : 40,
         "dx" : 1,
         "veg_type": "randv",

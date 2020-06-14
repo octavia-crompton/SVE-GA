@@ -66,9 +66,6 @@ def print_all_params(all_params, include=None):
             print('\t' + key + ' : ' + str(all_params['common_dict'][key]))
 
 
-
-
-
 def list_image_names(base_dir, core, remove_extension=True):
     """
 

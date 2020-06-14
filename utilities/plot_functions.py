@@ -668,7 +668,7 @@ def plot_infl_grid(subset):
 SVE mass balance checks
 """
 
-def summarize_mass_balance(core, legend=False):
+def summarize_mass_balance(core, legend=False, ax = None):
     """
 
     Parameters
@@ -680,7 +680,10 @@ def summarize_mass_balance(core, legend=False):
     -------
 
     """
-    fig, ax = plt.subplots(figsize=(6, 4))
+    if not ax:
+        fig, ax = plt.subplots(figsize=(6, 4))
+    else:
+        fig = plt.gcf()
 
     for key in core.index:
         sim = core.loc[key]
