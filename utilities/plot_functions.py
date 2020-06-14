@@ -496,7 +496,7 @@ def place_AB(axes, xloc=-0.1, yloc=1.15):
     return axes
 
 
-def plot_hydrographs(core, nonzero=True, ax=None):
+def plot_hydrographs(core, nonzero=True, ax=None, label = False):
     """
     hydrographs (flux3) with negative values removed
 
@@ -508,9 +508,10 @@ def plot_hydrographs(core, nonzero=True, ax=None):
         SVE simulations
 
     """
-
     if not ax:
         fig, ax = plt.subplots(1)
+    else:
+        fig = plt.gcf()
     if type(core) == dict:
         core = pd.DataFrame(core).T
 
@@ -521,11 +522,15 @@ def plot_hydrographs(core, nonzero=True, ax=None):
         if nonzero:
             flux3[flux3 < 0] = 0
         flux3_cm_hr = flux3 * 3.6e5 / sim["Ly"] / sim["Lx"]
-        ax.plot(t_h / 60., flux3_cm_hr)
-
+        if not label:
+            ax.plot(t_h / 60., flux3_cm_hr)
+        else:
+            ax.plot(t_h / 60., flux3_cm_hr, label = sim.pretty)
+            ax.legend()
     ax.set_xlabel('minutes')
     ax.set_ylabel('cm/hr')
     return fig, ax
+
 
 
 def plot_inflgraphs(core, nonzero=False, ax=None):

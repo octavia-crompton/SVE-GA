@@ -219,6 +219,7 @@ def interp2nodes(nrow, ncol, nop, x):
             xcc[j, k] = 0.25 * (x[n1] + x[n2] + x[n3] + x[n4])
     return xcc
 
+
 def gaussian_micro(params):
 
     dx = params['dx']
@@ -249,21 +250,23 @@ def gaussian_micro(params):
     blurred = blurred * So  / Si / m_scale
     blurred -= blurred.mean()
 
-    window = signal.gaussian(20, std=4)
-    window = np.hstack((window[:10], np.ones(ncol+1-20),window[10:] ))
+    w_width = int(20/dx)
+    window = signal.gaussian(w_width*2, std=2)
+    window = np.hstack((window[:w_width],
+                        np.ones(ncol+1-w_width*2),window[-w_width:] ))
     window = np.tile(window, [nrow+1,1])
 
-    side_window = signal.gaussian(20, std=4)
-    side_window = np.hstack((side_window[:10], np.ones(nrow+1-20),
-                             side_window[10:] ))
-    side_window = np.tile(side_window, [ncol+1,1]).T
+    y_window = signal.gaussian(w_width*2, std=2)
 
-    micro = blurred*window*side_window
+    y_window = np.hstack((y_window[:w_width],
+                        np.ones(nrow+1-w_width*2),y_window[-w_width:] ))
+    y_window = np.tile(y_window, [ncol+1,1]).T
+
+    micro = blurred*window*y_window
 
     z = z + micro
 
     return z
-
 # def gaussian_micro(params):
 #     """
 #     Simple gaussian microtopography
