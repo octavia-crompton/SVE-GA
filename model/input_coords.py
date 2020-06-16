@@ -8,6 +8,8 @@ from scipy.ndimage.filters import gaussian_filter
 from os.path import dirname
 from scipy import signal
 
+## TODO: m_scale bad.  make absolute
+
 def wrap_coords(path, params):
     """
     Parameters:
@@ -228,6 +230,7 @@ def gaussian_micro(params):
     So = params['So']
     m_scale = params['m_scale']
     m_sigma = params['m_sigma']
+    m_edge = params['m_edge']
 
     x = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
     y = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
@@ -250,7 +253,8 @@ def gaussian_micro(params):
     blurred = blurred * So  / Si / m_scale
     blurred -= blurred.mean()
 
-    w_width = int(20/dx)
+    w_width = int(m_edge/dx)
+
     window = signal.gaussian(w_width*2, std=2)
     window = np.hstack((window[:w_width],
                         np.ones(ncol+1-w_width*2),window[-w_width:] ))

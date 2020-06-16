@@ -151,7 +151,7 @@ def read_core(batch_dir, sim_path):
     fV = veg.mean()
 
     mass_bal = rain_vol - ponded_vol - boundary_flux_vol - total_infl  # m3
-    print (mass_bal)
+    
     sim_dict = {}
     for name in fortan_outvars:
         sim_dict[name] = locals()[name]

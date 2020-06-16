@@ -1,6 +1,7 @@
 # coding=utf-8
 """
 Functions for plotting
+TODO: plot_all_inflow delete
 """
 import warnings
 
@@ -708,7 +709,7 @@ def summarize_mass_balance(core, legend=False, ax = None):
     return fig
 
 
-def summarize_fluxes(sim, ):
+def summarize_fluxes(sim, trim = 0, set_ylim=None):
     """
     Plot global mass balance components to check
     that they add to zero.
@@ -720,23 +721,27 @@ def summarize_fluxes(sim, ):
 
     """
     fig, ax = plt.subplots(figsize=(6, 4))
+    t = sim.t_h[trim:]/60
 
     # m3/s*3.6e5 (s cm)/(hr m) /m2
     scale = 3.6e5/sim.Lx/sim.Ly
-    ax.plot(sim.t_h / 60.,  sim.infl_1d * scale, next(linecycler), 
+    ax.plot(t,  sim.infl_1d[trim:] * scale, next(linecycler),
         label="$I$: infiltration")
-    ax.plot(sim.t_h / 60., sim.boundary_flux_1d * scale, next(linecycler), label="$q$: flux out")
-    ax.plot(sim.t_h / 60., sim.dvol_1d * scale, next(linecycler), 
+    ax.plot(t, sim.boundary_flux_1d[trim:] * scale, next(linecycler), label="$q$: flux out")
+    ax.plot(t, sim.dvol_1d[trim:] * scale, next(linecycler),
         label="$dV$: volume change ")
     ax.set_xlabel("Time (min)")
 
-    ax.plot(sim.t_h / 60., sim.rain_series * 3.6e5, label="$p$: rain")
+    ax.plot(t, sim.rain_series[trim:] * 3.6e5, label="$p$: rain")
     ax.legend(bbox_to_anchor=(1.0, 1.0), loc='upper left')
 
     ax.set_ylabel("cm/hr")
     ax.set_title("Boundary fluxes")
-
+    ax.set_xlim(0,)
+    if set_ylim:
+        ax.set_ylim(-sim.p*1.5, sim.p*1.5)
     return fig
+
 
 
 def plot_fluxes(sim):
@@ -747,7 +752,7 @@ def plot_fluxes(sim):
     ax = axes[0]
 
     scale = 3.6e5/sim.Lx/sim.Ly
-    ax.plot(sim.t_h / 60., sim.fluxin * scale,label="$1$")
+    ax.plot(sim.t_h / 60., sim.flux1 * scale, label="$1$")
     ax.plot(sim.t_h / 60., sim.flux2 * scale, label="$2$")
     ax.plot(sim.t_h / 60., sim.flux3 * scale, label="$3$")
     ax.plot(sim.t_h / 60., sim.flux4 * scale, label="$4$")
@@ -766,7 +771,7 @@ def plot_fluxes(sim):
 
     ax.legend()
     ax.set_xlabel("Time (min)")
-    ax.set_title("Total flux out")
+    ax.set_title("Total boundary flux")
 
 
 def check_cell_fluxes(sim, xi=-1, yi=1):
@@ -824,8 +829,7 @@ def check_cell_fluxes(sim, xi=-1, yi=1):
 
     return fig
 
-
-def check_band_fluxes(sim, xi=0):
+def check_band_fluxes(sim, xi=0, sharey= True):
     """
     Plot the fluxes into and out of a given cross-slope band (`xi`).
 
@@ -850,7 +854,7 @@ def check_band_fluxes(sim, xi=0):
 
     band_infl = sim.infl_3d[:, :, xi].mean(1)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4), sharex='all', sharey='all')
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4), sharex='all', sharey=sharey)
 
     ax = axes[0]
     ax.plot(sim.t_print / 60., (rain_inputs - flux_out -
@@ -862,7 +866,7 @@ def check_band_fluxes(sim, xi=0):
 
     ax = axes[1]
     ax.plot(sim.t_print / 60., band_infl, next(linecycler), label="$f$")
-    ax.plot(sim.t_print / 60., flux_out , next(linecycler), label="$q$")
+    ax.plot(sim.t_print / 60., flux_out , next(linecycler), label="$q_{net}$")
     ax.plot(sim.t_print / 60., rain_inputs, next(linecycler), label="$p$")
     ax.plot(sim.t_print / 60., d_vol_this_band , next(linecycler), label=r"$\Delta V$")
 
@@ -937,7 +941,50 @@ def plot_inflow(sim,  t_f = None, N_profile=5):
 
 
 
-def plot_all_inflow(sim, t_f = None, freq=3, label_axes=True, ax = None):
+# def plot_all_inflow(sim, t_f = None, freq=3,
+#                     label_axes=True, ax = None):
+#     """
+#     Plot inflow profile at select times
+#
+#     Parameters:
+#     -----------
+#     sim : dict
+#         SVE simulation
+#     freq : int
+#         plot frequency
+#     """
+#     if not ax:
+#         fig, ax = plt.subplots(1, figsize=(7, 4.5))
+#     else:
+#         fig = plt.gcf()
+#
+#     scale = 3.6e5/sim.Lx
+#     sim['bad'] = sim['hc'] * sim['uc']*scale
+#     if fld == 'qc':
+#         sim['qc'] = sim['xflux0']/sim.dx*scale
+#         sim['qc'][sim['hc'] <= sim.epsh*1.05] = 0
+#
+#
+#
+#     if t_f:
+#         inds = np.where(sim.t_print < t_f)[0]
+#     else:
+#         inds = np.where(np.diff(sim.hc.mean(1).mean(1)) > 1e-6)[0]
+#
+#     for i in inds[::freq]:
+#         ax.plot(sim.xc.mean(0),  sim['qc'].mean(1)[i], 'b--')
+#
+#     if label_axes:
+#         ax.set_xlabel('x')
+#         ax.set_ylabel("q (cm/hr)")
+#     else:
+#         ax.set_xticklabels("")
+#         ax.set_yticklabels("")
+#     ax.set_xlim(0, )
+#     return fig, ax
+
+def plot_all_profiles(sim, t_f = None, freq=3, fld = "qc",
+                    label_axes=True, ax = None):
     """
     Plot inflow profile at select times
 
@@ -954,8 +1001,9 @@ def plot_all_inflow(sim, t_f = None, freq=3, label_axes=True, ax = None):
         fig = plt.gcf()
 
     scale = 3.6e5/sim.Lx
-    sim['bad'] = sim['hc'] * sim['uc']*scale
-    sim['qc'] = sim['xflux1']/sim.dx*scale
+    if fld == 'qc':
+        sim['qc'] = sim['xflux0']/sim.dx*scale
+        sim['qc'][sim['hc'] <= sim["epsh"]*1.05] = 0
 
     if t_f:
         inds = np.where(sim.t_print < t_f)[0]
@@ -963,11 +1011,14 @@ def plot_all_inflow(sim, t_f = None, freq=3, label_axes=True, ax = None):
         inds = np.where(np.diff(sim.hc.mean(1).mean(1)) > 1e-6)[0]
 
     for i in inds[::freq]:
-        ax.plot(sim.xc.mean(0),  sim['qc'].mean(1)[i], 'b--')
+        ax.plot(sim.xc.mean(0),  sim[fld].mean(1)[i], 'b--')
 
-    if label_axes:
+    if label_axes and (fld =="qc"):
         ax.set_xlabel('x')
         ax.set_ylabel("q (cm/hr)")
+    elif label_axes :
+        ax.set_xlabel('x')
+        ax.set_ylabel(fld)
     else:
         ax.set_xticklabels("")
         ax.set_yticklabels("")

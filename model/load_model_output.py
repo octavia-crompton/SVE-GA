@@ -300,6 +300,24 @@ def summary_update(core):
         else:
             core.at[key, 'no_flow'] = False
 
+    sims = dict(core.T)
+
+    for key in sims.keys():
+        sim = pd.Series(sims[key])
+        sims[key] = pd.Series(sims[key])
+        if "xflux0" not in sim:
+            sims[key]['qc'] = sim.uc * sim.hc
+        else:
+            qc = sim.xflux0/sim.dx
+            qc[sim['hc'] <= sim["epsh"]*1.05] = 0
+
+            sims[key]['qc'] = qc
+
+        sims[key]['qc_1D'] = sims[key]['qc'].mean(1)
+
+
+    core = pd.DataFrame(sims).T
+
     core.i_tr = core.i_tr.astype(int)
 
     return core
