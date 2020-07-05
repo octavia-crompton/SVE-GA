@@ -1,3 +1,7 @@
+Things to fix:
+ncol and nrow
+j and k
+
 # Things to talk about
 
 - presenting fluxes in a non-confusing way

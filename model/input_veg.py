@@ -96,24 +96,24 @@ def wrap_randv(params, path=None):
       params: parameter dictionary
 
     """
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     fV = params['fV']
     sigma_x = params['sigma_x']
     sigma_y = params['sigma_y']
     seed = params['seed']
     grad_fV = params['grad_fV']
 
-    veg_nodes = make_randv(nrow, ncol, fV, sigma_x, sigma_y, seed,
+    veg_nodes = make_randv(ncol, nrow, fV, sigma_x, sigma_y, seed,
                        grad_fV = 0)
     veg_nodes = veg_nodes.astype(int)
 
-    write_veg(path, nrow, ncol, veg_nodes)
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
 
-def make_randv(nrow, ncol, fV, sigma_x, sigma_y, seed = 0, grad_fV = 0):
+def make_randv(ncol, nrow, fV, sigma_x, sigma_y, seed = 0, grad_fV = 0):
     """
     Function to create vegetation fields (case = `randv`)
     """
@@ -121,10 +121,10 @@ def make_randv(nrow, ncol, fV, sigma_x, sigma_y, seed = 0, grad_fV = 0):
 
     if grad_fV > 0:
         threshold = np.tile(np.linspace(
-            fV - grad_fV, fV + grad_fV, ncol + 1), (nrow + 1, 1))
-        veg_nodes = sp.rand(nrow + 1, ncol + 1) >= 1 - threshold
+            fV - grad_fV, fV + grad_fV, nrow + 1), (ncol + 1, 1))
+        veg_nodes = sp.rand(ncol + 1, nrow + 1) >= 1 - threshold
     else:
-        veg_nodes = sp.rand(nrow + 1, ncol + 1) >= 1 - fV
+        veg_nodes = sp.rand(ncol + 1, nrow + 1) >= 1 - fV
 
     veg_nodes = veg_nodes.astype(float)
 
@@ -149,13 +149,13 @@ def wrap_spots_veg(params, path=None):
     -------
 
     """
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     fV = params['fV']
     sigma = params['sigma']
     spots = params['spots']
     np.random.seed(params['seed'])
-    veg_nodes = np.zeros((nrow + 1, ncol + 1))
+    veg_nodes = np.zeros((ncol + 1, nrow + 1))
     veg_type = params['veg_type']
 
     y = np.linspace(veg_nodes.shape[1] * 0.1, veg_nodes.shape[1] * 0.9, spots,
@@ -172,7 +172,7 @@ def wrap_spots_veg(params, path=None):
     veg_nodes = veg_nodes.astype(int)
     if veg_type == "labarynth":
         veg_nodes = 1 - veg_nodes.astype(int)
-    write_veg(path, nrow, ncol, veg_nodes)
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
@@ -189,17 +189,17 @@ def wrap_stripes(params, path=None):
     -------
 
     """
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     fV = params['fV']
     stripe_count = params['stripe_count']
     downslope = params['downslope']
 
-    veg_nodes = sp.zeros((nrow + 1, ncol + 1))
+    veg_nodes = sp.zeros((ncol + 1, nrow + 1))
 
-    veg_width = int(ncol * fV / stripe_count)
-    bare_width = int(ncol * (1. - fV) / stripe_count)
-    distance_between_stripes = ncol / stripe_count
+    veg_width = int(nrow * fV / stripe_count)
+    bare_width = int(nrow * (1. - fV) / stripe_count)
+    distance_between_stripes = nrow / stripe_count
     if downslope == 'bare':
         lower_limit = 0
     elif downslope == 'veg':
@@ -208,12 +208,12 @@ def wrap_stripes(params, path=None):
         print ("specify a valid vegetation orientation")
         return
     for ind in np.arange(veg_width):
-        y = np.arange(lower_limit + ind, ncol, distance_between_stripes, dtype=int)
+        y = np.arange(lower_limit + ind, nrow, distance_between_stripes, dtype=int)
         veg_nodes[:, y] = 1
 
     veg_nodes = veg_nodes.astype(int)
 
-    write_veg(path, nrow, ncol, veg_nodes)
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
@@ -231,25 +231,25 @@ def wrap_diag_stripe(params, path=None):
 
     """
 
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     np.random.seed(params['seed'])
 
-    veg_nodes = sp.zeros((nrow + 1, ncol + 1))
+    veg_nodes = sp.zeros((ncol + 1, nrow + 1))
 
-    step_size = ncol / nrow
+    step_size = nrow / ncol
 
     for j in range(step_size):
-        for i in range(nrow):
+        for i in range(ncol):
             veg_nodes[i, step_size * i + j] = 1
 
     for j in range(step_size):
-        for i in range(nrow):
+        for i in range(ncol):
             veg_nodes[i, max(step_size * i - j, 0)] = 1
 
     veg_nodes = veg_nodes.astype(int)
 
-    write_veg(path, nrow, ncol, veg_nodes)
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
@@ -272,8 +272,8 @@ def wrap_image_veg(params, path=None):
     filepath = dirname(dirname(path))
     filename = '/'.join([filepath, params['veg_dir'], params['v'] + params['veg_ext']])
 
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     fV = params['fV']
 
     if params['veg_ext'] == '.npy':
@@ -287,8 +287,8 @@ def wrap_image_veg(params, path=None):
         veg_nodes = image > np.percentile(image, 100 * (1 - fV))
         veg_nodes = np.array(veg_nodes, dtype=float)
 
-    veg_nodes = veg_nodes[:nrow + 1,:ncol + 1]
-    write_veg(path, nrow, ncol, veg_nodes)
+    veg_nodes = veg_nodes[:ncol + 1,:nrow + 1]
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
@@ -304,18 +304,18 @@ def wrap_patch_veg(params, path):
     params: dict
         parameter dictionary
     """
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     fV = params['fV']
 
-    veg_nodes = np.zeros([nrow + 1, ncol + 1])
-    veg_nodes[:, :int(ncol * fV)] = 1
+    veg_nodes = np.zeros([ncol + 1, nrow + 1])
+    veg_nodes[:, :int(nrow * fV)] = 1
 
-    write_veg(path, nrow, ncol, veg_nodes)
+    write_veg(path, ncol, nrow, veg_nodes)
 
     return veg_nodes
 
-def write_veg(path, nrow, ncol, veg_nodes):
+def write_veg(path, ncol, nrow, veg_nodes):
     """
     write veg_nodes to veg.dat
 
@@ -323,7 +323,7 @@ def write_veg(path, nrow, ncol, veg_nodes):
     if path is None:
         return
 
-    npt = (nrow + 1) * (ncol + 1)  # number of points
+    npt = (ncol + 1) * (nrow + 1)  # number of points
     veg_nodes = veg_nodes.ravel()
 
     filename = '{0}/input/veg.dat'.format(path)
@@ -332,7 +332,7 @@ def write_veg(path, nrow, ncol, veg_nodes):
         f.write('{0}  \n'.format(veg_nodes[n]))
     f.close()
 
-    veg_nodes = veg_nodes.reshape([nrow + 1, ncol + 1])  # [:-1, :-1]
+    veg_nodes = veg_nodes.reshape([ncol + 1, nrow + 1])  # [:-1, :-1]
 
     filename = '{0}/input/veg.pklz'.format(path)
     f = gzip.open(filename, 'wb')

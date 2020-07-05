@@ -84,9 +84,9 @@ def make_batches(base_name, output_folder):
         p = sim_dict['p']
         sim_dict['p'] = np.arange(p[0], p[1]+p[2], p[2])
 
-    if 'ncol_range' in flags:
-        ncol = sim_dict['ncol']
-        sim_dict['ncol'] = np.arange(ncol[0], ncol[1]+ncol[2], ncol[2])
+    if 'nrow_range' in flags:
+        nrow = sim_dict['nrow']
+        sim_dict['nrow'] = np.arange(nrow[0], nrow[1]+nrow[2], nrow[2])
 
     if 'So_range' in flags:
         So = sim_dict['So']
@@ -281,12 +281,12 @@ def update_params(params):
 
     params['rain'] = params['p'] / 3.6e5  # in m/s
 
-    if "ncol" in params:
-        params['Lx'] = params['ncol'] * params['dx']
-        params['Ly'] = params['nrow'] * params['dx']
+    if "nrow" in params:
+        params['Lx'] = params['nrow'] * params['dx']
+        params['Ly'] = params['ncol'] * params['dx']
     else:
-        params['ncol'] = int(params['Lx'] / params['dx'])
-        params['nrow'] = int(params['Ly'] / params['dx'])
+        params['nrow'] = int(params['Lx'] / params['dx'])
+        params['ncol'] = int(params['Ly'] / params['dx'])
 
     params['area'] = params['Lx']*params['Ly']
 

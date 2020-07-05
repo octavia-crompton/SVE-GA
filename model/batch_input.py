@@ -56,14 +56,14 @@ def sim_input(path):
     file_name = '{0}/params.json'.format(path)
     params = json.load(open(file_name))
 
-    nrow = params["nrow"]
     ncol = params["ncol"]
+    nrow = params["nrow"]
 
     wrap_veg(params, path = path)
 
     wrap_coords(path, params)
 
-    write_nodes(path, nrow, ncol)
+    write_nodes(path, ncol, nrow)
 
     write_boundary(path, params)
 
@@ -130,8 +130,8 @@ def write_inc(path, params):
     nt: number of time steps
     """
     nt = params['nt']
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
 
     input_file_name = os.path.join(model_dir, 'dry1.inc')
     output_file_name = os.path.join(path, 'dry.inc')
@@ -141,7 +141,7 @@ def write_inc(path, params):
             for line in input_file:
                 if line[6:15] == 'parameter':
                     newline = '\t parameter ( nn={0},ntp={1},ny={2},nx={3})'.format(
-                        (nrow + 1) * (ncol + 1) + 1, nt + 1, nrow + 2, ncol + 2)
+                        (ncol + 1) * (nrow + 1) + 1, nt + 1, ncol + 2, nrow + 2)
 
                     output_file.write(newline)
                 else:

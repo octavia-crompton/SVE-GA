@@ -65,7 +65,7 @@ C     Track infiltration volume
       zflux = 0.d0
 
       vol = 0.D0
-      do j=1,nrow 
+      do j=1,ncol 
         do k=kbeg(j),kend(j)
           vol = vol + h(j,k)*area(j,k)
         enddo
@@ -85,7 +85,7 @@ C    Begin time loop.
         amax = 0.d0
     
 C       Compute predictor.
-        do j=1,nrow
+        do j=1,ncol
           do k=kbeg(j),kend(j)
             call bconds(j,k,h,u,v)                              
             call predict(j,k)
@@ -93,7 +93,7 @@ C       Compute predictor.
         enddo
         
 C Loop over cells to compute fluxes.
-        do j=1,nrow
+        do j=1,ncol
         do k=kbeg(j),kend(j)
           call bconds(j,k,hp,up,vp)
           call fluxes(j-1,j,k,k,1)          ! horizontal faces.   
@@ -128,7 +128,7 @@ C         Increment the fluxes at each grid cell
       
 
 C Compute corrector solution.
-        do j=1,nrow
+        do j=1,ncol
         do k=kbeg(j),kend(j)
           call source(j,k,hp(j,k),up(j,k),vp(j,k), 1)
 
@@ -153,7 +153,7 @@ C          dzinfl, zinflmap :   units : m^3
 C Store solution. 
 C Solve continuity equation even in all cells, but 
 C solve momentum equations in wet cells only.
-        do j=1,nrow
+        do j=1,ncol
           do k=kbeg(j),kend(j)
 C Check for negative depth.
             if(q(j,k,1) .ge. 0.D0) then
@@ -184,7 +184,7 @@ C Neglect momentum in nearly dry cells.
           
           vol0 = vol
           vol = 0.D0
-          do j=1,nrow 
+          do j=1,ncol 
             do k=kbeg(j),kend(j)
               vol = vol + h(j,k)*area(j,k)
             enddo
@@ -219,7 +219,7 @@ C         Increment print count
           write(101, 204) t, amax*dt 
 
 C         'output/h.out' 
-          do j=1,nrow
+          do j=1,ncol
             do k=kbeg(j),kend(j)
               write(100, 201) j, k, h(j,k), u(j,k), v(j,k),
      &                  zinflmap2(j,k), xflux0(j,k), yflux0(j,k),
@@ -236,7 +236,7 @@ C         'output/h.out'
           
         endif
          
-         r8minvol = 0.1d0*epsh*dxdum**2*nrow*ncol
+         r8minvol = 0.1d0*epsh*dxdum**2*ncol*nrow
          if ((vol .le. r8minvol) .and. (t .gt. t_rain)) then
            call gracefulExit  
            write(102,*) 'exit: dry'
@@ -293,8 +293,8 @@ C         'output/h.out'
       include 'dry.inc'
       
       hydro = 0.d0
-      do j=1,nrow
-            hydro = hydro + f(j,ncol,1,2)*ds(j,ncol,2)  ! m3/s
+      do j=1,ncol
+            hydro = hydro + f(j,nrow,1,2)*ds(j,nrow,2)  ! m3/s
       enddo
       write(104, 204)  t, hydro      
       
@@ -310,7 +310,7 @@ C     'output/time.out'
       write(101, 204) t, amax*dt 
 
 C     'output/h.out' 
-      do j=1,nrow
+      do j=1,ncol
         do k=kbeg(j),kend(j)
           write(100, 201) j, k, h(j,k), u(j,k), v(j,k),
      &                  zinflmap2(j,k), xflux0(j,k), yflux0(j,k),
@@ -824,14 +824,14 @@ C Specified flow rate (subcritical).
       do i=1,np
         read(5,*) veg(i)
       enddo 
-      do j=1,nrow
+      do j=1,ncol
         do k=kbeg(j),kend(j)
           read(11,*) (nop(j,k,i), i=1,4)
         enddo
       enddo
       
 C Compute grid metrics.
-      do j=1,nrow
+      do j=1,ncol
       do k=kbeg(j),kend(j)
         n1 = nop(j,k,1)
         n2 = nop(j,k,2)
@@ -870,7 +870,7 @@ C Compute grid metrics.
       enddo
       dxdum = dxdxi          
 C Compute cell face angles.
-      do j=1,nrow
+      do j=1,ncol
       do k=kbeg(j),kend(j)
        ddx = x(nop(j,k,2)) - x(nop(j,k,1))
        ddy = y(nop(j,k,2)) - y(nop(j,k,1))
@@ -901,7 +901,7 @@ C Compute cell face angles.
       enddo
 
 C Set some things in ghost cells.
-      do j=1,nrow
+      do j=1,ncol
       do k=kbeg(j),kend(j) 
         do i=1, inum(j,k)
           call findbc(i,j,k,jj,kk,j2,k2)
@@ -1030,16 +1030,16 @@ C Beta Family.
      &   (itype(j,k,i),i=1,inum(j,k)),(ipos(j,k,i),i=1,inum(j,k))
       enddo
       read(3,'(a72)') dum
-      read(3,*) nrow
-      read(3,'(a72)') dum
       read(3,*) ncol
       read(3,'(a72)') dum
+      read(3,*) nrow
+      read(3,'(a72)') dum
       
-      do j=1,nrow       
+      do j=1,ncol       
          read(3,*) idum, kbeg(j), kend(j)
       enddo
-      kbeg(nrow+1) = kbeg(nrow)
-      kend(nrow+1) = kend(nrow)   
+      kbeg(ncol+1) = kbeg(ncol)
+      kend(ncol+1) = kend(ncol)   
       read(3,'(a72)') dum
       read(3,*) ndir
 
@@ -1057,7 +1057,7 @@ C Set up grid.
       
 C Set initial conditions.    
       t = 0.D0
-      do j=1,nrow
+      do j=1,ncol
         do k=kbeg(j),kend(j)
           
           n1 = nop(j,k,1)
@@ -1076,7 +1076,7 @@ C Set initial conditions.
         enddo
       enddo     
 
-      do j=1,nrow
+      do j=1,ncol
       do k=kbeg(j),kend(j)
 C       if (h(j,k) .lt. 0.D0) h(j,k) = 0.D0
         q(j,k,1) = h(j,k)

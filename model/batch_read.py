@@ -63,8 +63,8 @@ def read_core(batch_dir, sim_path):
 
     fV = params['fV']
     dx = params['dx']
-    ncol = params['ncol']
     nrow = params['nrow']
+    ncol = params['ncol']
     Ly = params['Ly']
     Lx = params['Lx']
     rain = params['rain']
@@ -115,7 +115,7 @@ def read_core(batch_dir, sim_path):
         print(t_print, tr)
 
     hc, vc, uc, infl_3d, xflux0, yflux0, xflux1, yflux1 = \
-        get_h(path=sim_path, nrow=nrow, ncol=ncol, dt_print=dt_print)
+        get_h(path=sim_path, ncol=ncol, nrow=nrow, dt_print=dt_print)
 
     #  read  dvol.out: m
     dvol_1d, boundary_flux_1d, infl_1d = get_mass_balance(path=sim_path,
@@ -311,7 +311,7 @@ def read_hydro(path):
     return t_h, hydro
 
 
-def get_h(path, nrow, ncol, dt_print):
+def get_h(path, ncol, nrow, dt_print):
     """
     Read SVE output from output/h.out
 
@@ -319,7 +319,7 @@ def get_h(path, nrow, ncol, dt_print):
     ----------
     path : str
         path to sim directory
-    nrow, ncol : int
+    ncol, nrow : int
         hillslope width and length
     dt_print : float
         fortran print frequency
@@ -345,26 +345,26 @@ def get_h(path, nrow, ncol, dt_print):
 
     """
     h = []
-    hdum = np.zeros([nrow, ncol])
+    hdum = np.zeros([ncol, nrow])
     v = []
-    vdum = np.zeros([nrow, ncol])
+    vdum = np.zeros([ncol, nrow])
     u = []
-    udum = np.zeros([nrow, ncol])
+    udum = np.zeros([ncol, nrow])
 
     zinflmap2 = []
-    infldum = np.zeros([nrow, ncol])
+    infldum = np.zeros([ncol, nrow])
 
     xflux0 = []
-    xfluxdum0 = np.zeros([nrow, ncol])
+    xfluxdum0 = np.zeros([ncol, nrow])
 
     yflux0 = []
-    yfluxdum0 = np.zeros([nrow, ncol])
+    yfluxdum0 = np.zeros([ncol, nrow])
 
     xflux1 = []
-    xfluxdum1 = np.zeros([nrow, ncol])
+    xfluxdum1 = np.zeros([ncol, nrow])
 
     yflux1 = []
-    yfluxdum1 = np.zeros([nrow, ncol])
+    yfluxdum1 = np.zeros([ncol, nrow])
 
 
 

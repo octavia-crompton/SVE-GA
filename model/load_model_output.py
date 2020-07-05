@@ -162,9 +162,10 @@ def extract_params(sim):
         DO not include flags
     """
     keys = ['q1_m2hr', 'Ks', 'dt_sw', 'tr', 'p', 'tmax_scale', 'dt_print',
-            'save_fluxes', 'save_sve', 'ncol', 'nrow', 'dx',
+            'save_fluxes', 'save_sve', 'nrow', 'ncol', 'dx',
             'veg_type', 'fV', 'grad_fV', 'seed', 'sigma_scale', 'sigma',
             'stripe_count', 'downslope', 'spots',
+            'm_So', 'm_sigma', 'm_edge',
             'topo', 'So', 'imodel', 's_scale', 'theta_r', 'theta_s',
             'theta_i', 'H_i', 'Ao', 'scheme', 'alpha', 'alphaB',
             'itype1', 'itype3', 'itype2', 'itype4',  'epsh']
@@ -452,7 +453,7 @@ def patchy_update(core):
 
         alphaB = sim.alphaB
         Kr_b = sim.So ** .5 / alphaB
-        L_b = (sim.ncol - sim.veg.mean(0).sum()) * sim.dx
+        L_b = (sim.nrow - sim.veg.mean(0).sum()) * sim.dx
 
         a = sim.m
 
@@ -604,7 +605,7 @@ def forward_integrate(sim):
     t = 0
     t_list = []
     x_list = []
-    for ind in np.arange( 0, sim.ncol, 1):
+    for ind in np.arange( 0, sim.nrow, 1):
         t = t + sim.dx / u_steady[ind]
         t_list.append(t)
         x_list.append(sim.xc.mean(0)[ind])

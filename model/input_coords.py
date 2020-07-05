@@ -8,8 +8,6 @@ from scipy.ndimage.filters import gaussian_filter
 from os.path import dirname
 from scipy import signal
 
-## TODO: m_scale bad.  make absolute
-
 def wrap_coords(path, params):
     """
     Parameters:
@@ -17,7 +15,7 @@ def wrap_coords(path, params):
     path: str
         path to simulation directory
     params: dict
-        parameter dictionary containing `nrow`, `ncol`,
+        parameter dictionary containing `ncol`, `nrow`,
         `dx`, `So`, `seed`
     
     Returns:
@@ -29,19 +27,19 @@ def wrap_coords(path, params):
     build_coords returns y,x,z values at nodes
     write_coords writes coordinates to coords.dat                
     """
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     dx = params['dx']
 
-    nop = write_nodes(path, nrow, ncol)
+    nop = write_nodes(path, ncol, nrow)
     y, x, z = build_coords(params, path )
-    write_coords(path, nrow, ncol, dx, y, x, z)
-    cc_coords(path, nrow, ncol, nop, y, x, z, dx)
+    write_coords(path, ncol, nrow, dx, y, x, z)
+    cc_coords(path, ncol, nrow, nop, y, x, z, dx)
 
     return y, x, z
 
 
-def cc_coords(path, nrow, ncol, nop, y, x, z, dx):
+def cc_coords(path, ncol, nrow, nop, y, x, z, dx):
     """
     Save cell center coordinates
     
@@ -49,9 +47,9 @@ def cc_coords(path, nrow, ncol, nop, y, x, z, dx):
     -----------
     path: str
         path to simulation directory 
-    nrow: float
-        across-slope number of cells
     ncol: float
+        across-slope number of cells
+    nrow: float
         along-slope number of cells
     dx: float
         grid size (m)
@@ -65,9 +63,9 @@ def cc_coords(path, nrow, ncol, nop, y, x, z, dx):
     Interpolates nodes to cell centers, and
     save to pickle in the path directory
     """
-    yc = interp2nodes(nrow, ncol, nop, y)
-    xc = interp2nodes(nrow, ncol, nop, x)
-    zc = interp2nodes(nrow, ncol, nop, z)
+    yc = interp2nodes(ncol, nrow, nop, y)
+    xc = interp2nodes(ncol, nrow, nop, x)
+    zc = interp2nodes(ncol, nrow, nop, z)
 
     coord_dict = {'xc': xc, 'yc': yc, 'zc': zc}
 
@@ -84,35 +82,35 @@ def build_coords(params, path = None):
     Parameters:
     -----------
     params: dict
-        parameter dictionary containing `nrow`, `ncol`,
+        parameter dictionary containing `ncol`, `nrow`,
         `dx`, `So`, `seed`, and `topo` (topography case)
     
     Returns:
     -------- 
     xdum: 
-        y at nodes, [nrow+1, ncol+1]
+        y at nodes, [ncol+1, nrow+1]
     ydum: 
-        x at nodes, [nrow+1, ncol+1]
+        x at nodes, [ncol+1, nrow+1]
     zdum: 
-        z at nodes, [nrow+1, ncol+1] 
+        z at nodes, [ncol+1, nrow+1] 
             
                 
     """
     topo = params['topo']
     dx = params['dx']
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     So = params['So']
 
-    x = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
-    y = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+    x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+    y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
     x, y = np.meshgrid(x, y)
 
     if topo == 'plane':
 
         z_max = So * (np.max(x) - np.min(x))
-        z_max = np.linspace(z_max, 0, ncol + 1)
-        z = np.tile(z_max, [nrow + 1]).reshape([nrow + 1, ncol + 1])
+        z_max = np.linspace(z_max, 0, nrow + 1)
+        z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
 
     elif topo == "from_file":
 
@@ -120,8 +118,8 @@ def build_coords(params, path = None):
         filename = '/'.join([filepath, params['topo_dir'],
                              params['t'] + params['topo_ext']])
 
-        nrow = params['nrow']
         ncol = params['ncol']
+        nrow = params['nrow']
 
         if params['topo_ext'] == '.npy':
             z = np.load(filename)
@@ -129,7 +127,7 @@ def build_coords(params, path = None):
             print("enter a .npy file")
             return
 
-        z = z[:nrow + 1,:ncol + 1]
+        z = z[:ncol + 1,:nrow + 1]
 
     elif topo == "gaussian":
 
@@ -143,7 +141,7 @@ def build_coords(params, path = None):
     return y.ravel(), x.ravel(), z.ravel()
 
 
-def write_coords(path, nrow, ncol, dx, x, y, z):
+def write_coords(path, ncol, nrow, dx, x, y, z):
     """
     Writes coordinate file, 'nodes.dat'
 
@@ -151,15 +149,15 @@ def write_coords(path, nrow, ncol, dx, x, y, z):
     -----------
     path: str
         path to simulation directory
-    nrow, ncol: float
+    ncol, nrow: float
         grid dimensions
     dx : float
         grid size
     y, x, z :  array_like
         node coordinates
     """
-    npt = (nrow + 1) * (ncol + 1)  # number of points
-    ne = ncol * nrow  # number of edges
+    npt = (ncol + 1) * (nrow + 1)  # number of points
+    ne = nrow * ncol  # number of edges
 
     filename = '{0}/input/coords.dat'.format(path)
     f = open(filename, 'w')
@@ -172,29 +170,29 @@ def write_coords(path, nrow, ncol, dx, x, y, z):
     f.close()
 
 
-def write_nodes(path, nrow, ncol):
+def write_nodes(path, ncol, nrow):
     """
     Writes cell nodes  to nodes.dat
 
     Parameters:
     -----------
     path: str
-    nrow, ncol: float
+    ncol, nrow: float
         grid dimensions    
     """
-    npt = (nrow + 1) * (ncol + 1)  # number of points
-    # (nrow) by (ncol)  -  node numbers
-    nodes = np.arange(1, npt + 1, dtype=int).reshape([nrow + 1, ncol + 1])
+    npt = (ncol + 1) * (nrow + 1)  # number of points
+    # (ncol) by (nrow)  -  node numbers
+    nodes = np.arange(1, npt + 1, dtype=int).reshape([ncol + 1, nrow + 1])
 
-    nop = np.zeros([nrow, ncol, 4], dtype=int)
-    for j in range(nrow):
-        for k in range(ncol):
+    nop = np.zeros([ncol, nrow, 4], dtype=int)
+    for j in range(ncol):
+        for k in range(nrow):
             nop[j, k] = nodes[j, k], nodes[j + 1, k], nodes[j + 1, k + 1], nodes[j, k + 1]
 
     fname = '{0}/input/nodes.dat'.format(path)
     f = open(fname, 'w')
-    for j in range(nrow):
-        for k in range(ncol):
+    for j in range(ncol):
+        for k in range(nrow):
             n1 = nop[j, k, 0]
             n2 = nop[j, k, 1]
             n3 = nop[j, k, 2]
@@ -206,14 +204,14 @@ def write_nodes(path, nrow, ncol):
     return nop
 
 
-def interp2nodes(nrow, ncol, nop, x):
+def interp2nodes(ncol, nrow, nop, x):
     """
     Interpolate cell node coordinates to cell centers
     """
-    xcc = np.zeros([nrow, ncol])
+    xcc = np.zeros([ncol, nrow])
 
-    for j in range(nrow):
-        for k in range(ncol):
+    for j in range(ncol):
+        for k in range(nrow):
             n1 = nop[j, k, 0] - 1
             n2 = nop[j, k, 1] - 1
             n3 = nop[j, k, 2] - 1
@@ -225,24 +223,23 @@ def interp2nodes(nrow, ncol, nop, x):
 def gaussian_micro(params):
 
     dx = params['dx']
-    nrow = params['nrow']
     ncol = params['ncol']
+    nrow = params['nrow']
     So = params['So']
-    m_scale = params['m_scale']
+    m_So = params['m_So']
     m_sigma = params['m_sigma']
-    m_edge = params['m_edge']
 
-    x = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
-    y = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+    x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+    y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
 
     x, y = np.meshgrid(x, y)
     z_max = So * (np.max(x) - np.min(x))
-    z_max = np.linspace(z_max, 0, ncol + 1)
-    z = np.tile(z_max, [nrow + 1]).reshape([nrow + 1, ncol + 1])
+    z_max = np.linspace(z_max, 0, nrow + 1)
+    z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
 
     np.random.seed(0)
 
-    micro = sp.rand(nrow + 1, ncol + 1) >= 0.5
+    micro = sp.rand(ncol + 1, nrow + 1) >= 0.5
 
     micro = micro.astype(float)
 
@@ -250,35 +247,84 @@ def gaussian_micro(params):
                               sigma=m_sigma)
 
     Si = (blurred[:, 1:] - blurred[:, :-1]).max()
-    blurred = blurred * So  / Si / m_scale
+    blurred = blurred * m_So*dx / Si
     blurred -= blurred.mean()
 
-    w_width = int(m_edge/dx)
-
+    w_width = 5
     window = signal.gaussian(w_width*2, std=2)
     window = np.hstack((window[:w_width],
-                        np.ones(ncol+1-w_width*2),window[-w_width:] ))
-    window = np.tile(window, [nrow+1,1])
+                        np.ones(nrow+1-w_width*2),window[-w_width:] ))
+    window = np.tile(window, [ncol+1,1])
 
     y_window = signal.gaussian(w_width*2, std=2)
 
     y_window = np.hstack((y_window[:w_width],
-                        np.ones(nrow+1-w_width*2),y_window[-w_width:] ))
-    y_window = np.tile(y_window, [ncol+1,1]).T
+                        np.ones(ncol+1-w_width*2),y_window[-w_width:] ))
+    y_window = np.tile(y_window, [nrow+1,1]).T
 
     micro = blurred*window*y_window
 
     z = z + micro
 
     return z
+
+# def gaussian_micro(params):
+#
+#     dx = params['dx']
+#     ncol = params['ncol']
+#     nrow = params['nrow']
+#     So = params['So']
+#     m_scale = params['m_scale']
+#     m_sigma = params['m_sigma']
+#     m_edge = params['m_edge']
+#
+#     x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+#     y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
+#
+#     x, y = np.meshgrid(x, y)
+#     z_max = So * (np.max(x) - np.min(x))
+#     z_max = np.linspace(z_max, 0, nrow + 1)
+#     z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
+#
+#     np.random.seed(0)
+#
+#     micro = sp.rand(ncol + 1, nrow + 1) >= 0.5
+#
+#     micro = micro.astype(float)
+#
+#     blurred = gaussian_filter(micro.astype(float),
+#                               sigma=m_sigma)
+#
+#     Si = (blurred[:, 1:] - blurred[:, :-1]).max()
+#     blurred = blurred * So  / Si / m_scale
+#     blurred -= blurred.mean()
+#
+#     w_width = int(m_edge/dx)
+#
+#     window = signal.gaussian(w_width*2, std=2)
+#     window = np.hstack((window[:w_width],
+#                         np.ones(nrow+1-w_width*2),window[-w_width:] ))
+#     window = np.tile(window, [ncol+1,1])
+#
+#     y_window = signal.gaussian(w_width*2, std=2)
+#
+#     y_window = np.hstack((y_window[:w_width],
+#                         np.ones(ncol+1-w_width*2),y_window[-w_width:] ))
+#     y_window = np.tile(y_window, [nrow+1,1]).T
+#
+#     micro = blurred*window*y_window
+#
+#     z = z + micro
+#
+#     return z
 # def gaussian_micro(params):
 #     """
 #     Simple gaussian microtopography
 #
 #     Parameters
 #     ----------
-#     ncol
 #     nrow
+#     ncol
 #     dx
 #     So
 #     m_scale
@@ -286,23 +332,23 @@ def gaussian_micro(params):
 #     """
 #
 #     dx = params['dx']
-#     nrow = params['nrow']
 #     ncol = params['ncol']
+#     nrow = params['nrow']
 #     So = params['So']
 #     m_scale = params['m_scale']
 #     m_sigma = params['m_sigma']
 #
-#     x = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
-#     y = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+#     x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
+#     y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
 #     x, y = np.meshgrid(x, y)
 #
 #     z_max = So * (np.max(x) - np.min(x))
-#     z_max = np.linspace(z_max, 0, ncol + 1)
-#     z = np.tile(z_max, [nrow + 1]).reshape([nrow + 1, ncol + 1])
+#     z_max = np.linspace(z_max, 0, nrow + 1)
+#     z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
 #
 #     np.random.seed(0)
 #
-#     micro = sp.rand(nrow + 1, ncol + 1) >= 0.5
+#     micro = sp.rand(ncol + 1, nrow + 1) >= 0.5
 #
 #     micro = micro.astype(float)
 #

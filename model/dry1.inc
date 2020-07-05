@@ -41,9 +41,9 @@
       common/srctrm/ fix(ny,nx,3),
      &               sx(0:ny,0:nx), sy(0:ny,0:nx)
 
-      common/ints/   ncol, np, ne, nbcell, ilim,
+      common/ints/   nrow, np, ne, nbcell, ilim,
      &               nprt, it, itp, nt, iprt,
-     &               nrow, isurf
+     &               ncol, isurf
 
       common/ints/   imodel, isveg
 

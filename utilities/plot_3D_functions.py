@@ -30,7 +30,6 @@ def fix_3D_axes(ax):
 Plot veg patterns
 """
 
-
 def plot_3D_veg_dots(sim):
     """
     Plot veg pattern as dots
