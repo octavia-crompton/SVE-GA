@@ -26,24 +26,24 @@ def RF_patterns(isveg, ravel_params):
     Parameters
     ----------
     isveg: array_like
-        binary vegetation array of shape (ncol, nrow)
+        binary vegetation array of shape (nrow, ncol)
     
     ravel_params: dict
     
     Returns 
     -------
     pattern_dict: dict
-       dictionary of feature maps of shape (ncol, nrow)
+       dictionary of feature maps of shape (nrow, ncol)
     
     """
 
     isvegc = np.array(isveg, dtype = float) 
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     dx = ravel_params['dx']
     
-    xc = np.arange(0, ncol*dx, dx)  + dx/2
-    yc = np.arange(0, nrow*dx, dx)  + dx/2
+    xc = np.arange(0, nrow*dx, dx)  + dx/2
+    yc = np.arange(0, ncol*dx, dx)  + dx/2
     xc, yc = np.meshgrid(xc, yc)    
     xc = xc.T
     yc = yc.T
@@ -118,7 +118,7 @@ def RF_patterns(isveg, ravel_params):
 
     # compute upslope
     for L in upslopeLs:         
-        upslopeL =  upslope_memory(isvegc,  min(nrow, int(L)))
+        upslopeL =  upslope_memory(isvegc,  min(ncol, int(L)))
         pattern_dict['upslope{0}'.format(L)] = upslopeL.copy()        
         pattern_dict['upslope{0}s'.format(L)] = gaussian_filter(upslopeL.astype(float), sigma=2)    
 
@@ -150,8 +150,8 @@ def RF_patterns(isveg, ravel_params):
         for L in upslopeLs: 
             del pattern_dict['upslope{0}'.format(L)] 
             
-    pattern_dict['d2divide'] = nrow - yc/dx # in grid cells (not m)        
-    pattern_dict['d2side'] = np.abs(ncol/2. - xc/dx )
+    pattern_dict['d2divide'] = ncol - yc/dx # in grid cells (not m)        
+    pattern_dict['d2side'] = np.abs(nrow/2. - xc/dx )
     
     for key in pattern_dict.keys():
         dum = pattern_dict[key]
@@ -219,13 +219,13 @@ def func_d2uB(isvegc, edge, mask=0 ):
     >  1 for veg cells with bare cells further upslope
     """
 
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge]).T
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge]).T
     arr[edge:-edge, edge:-edge] = np.flipud(isvegc.T)
     
     if type(mask)!=int:
-        newmask = np.ones([ncol+ 2*edge, nrow + 2*edge]).T
+        newmask = np.ones([nrow+ 2*edge, ncol + 2*edge]).T
         newmask[edge:-edge, edge:-edge] = np.flipud(mask.T)  
         arr[newmask==0]= 1
 
@@ -251,14 +251,14 @@ def func_d2dB(isvegc, edge, mask = 0):
         array with distances to the nearest downslope bare cell
         ( 0 for bare ground,  1 for veg cells with a bare cell immediately downslope)
     """    
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge]).T
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge]).T
     arr[edge:-edge, edge:-edge] = isvegc.T
 
     if type(mask)!=int:
-        newmask = np.ones([ncol+ 2*edge, nrow + 2*edge]).T
+        newmask = np.ones([nrow+ 2*edge, ncol + 2*edge]).T
         newmask[edge:-edge, edge:-edge] = mask.T
         arr[newmask==0]= 1
 
@@ -278,13 +278,13 @@ def func_d2lB(isvegc, edge):
     ----------
     Returns 
     -------
-      d2lB : [ncol x nrow] array of distane to nearest left bare
+      d2lB : [nrow x ncol] array of distane to nearest left bare
         =  0 for bare cells
         =  1 for veg cells with a bare cell immediately left
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge])
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge])
     arr[edge:-edge, edge:-edge] = isvegc
     a = pd.DataFrame(arr) != 0
 
@@ -297,16 +297,16 @@ def func_d2lB(isvegc, edge):
 def func_d2lV(isvegc, edge):
     """
     input: 
-      isvegc : [ncol x nrow] array of vegetation field
+      isvegc : [nrow x ncol] array of vegetation field
 
     output : 
-      d2lV : [ncol x nrow] array, distane to nearest veg cell to the left
+      d2lV : [nrow x ncol] array, distane to nearest veg cell to the left
         =  0 for veg cells
         =  1 for bare cells with a veg cell immediately left  
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge])
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge])
     arr[edge:-edge, edge:-edge] = 1 - isvegc
     a = pd.DataFrame(arr) != 0
 
@@ -319,16 +319,16 @@ def func_d2lV(isvegc, edge):
 def func_d2rB(isvegc, edge):
     """
     input:
-      isvegc : [ncol x nrow] array of vegetation field
+      isvegc : [nrow x ncol] array of vegetation field
 
     output :
-      d2rB : [ncol x nrow] array;  distane to nearest bare cell to right
+      d2rB : [nrow x ncol] array;  distane to nearest bare cell to right
         =  0 for bare cells
         =  1 for veg cells with a veg cell immediately to right
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge])
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge])
     arr[edge:-edge, edge:-edge] = np.flipud(isvegc)
     a = pd.DataFrame(arr) != 0
 
@@ -342,16 +342,16 @@ def func_d2rB(isvegc, edge):
 def func_d2rV(isvegc, edge):
     """
     input: 
-      isvegc : [ncol x nrow] array of vegetation field
+      isvegc : [nrow x ncol] array of vegetation field
 
     output : 
-      d2rV : [ncol x nrow] array;  distane to nearest veg cell to right
+      d2rV : [nrow x ncol] array;  distane to nearest veg cell to right
         =  0 for veg cells
         =  1 for bare cells with a veg cell immediately to right  
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
-    arr = np.ones([ncol+ 2*edge, nrow + 2*edge])
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
+    arr = np.ones([nrow+ 2*edge, ncol + 2*edge])
     arr[edge:-edge, edge:-edge] = 1- np.flipud(isvegc)
     a = pd.DataFrame(arr) != 0
 
@@ -391,16 +391,16 @@ def get_patchL(isvegc, saturate):
     -----
     patchLv,patchLB,patchLc,Ldict,Bdict = get_patchL(isvegc)
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     patchLv = np.zeros(isvegc.shape, dtype = float)  # veg patch length
     patchLB = np.zeros(isvegc.shape, dtype = float)  # upslope interspace patch length (paired to veg patch)
     
-    for i in range(ncol):  # loop over across-slope direction first
+    for i in range(nrow):  # loop over across-slope direction first
         count = 0           
-        for j in range(nrow):    
+        for j in range(ncol):    
             if isvegc[i, j] == 1:    #  if veg patch, add 1
-                if j >= (nrow -1):  # if we're at the top of the hill                  
+                if j >= (ncol -1):  # if we're at the top of the hill                  
                   patchLv[i, j-count:] = count  # record veg patch length                  
                 count += 1  
                                                         
@@ -415,7 +415,7 @@ def get_patchL(isvegc, saturate):
                       Lb = np.where(isvegc[i,j:] == 1)[0][0]                               
                       patchLB[i,j-count:j] = Lb
                   except IndexError:  # bare patch extends to top of hill
-                      patchLB[i,j-count:j] = nrow - j
+                      patchLB[i,j-count:j] = ncol - j
                   count = 0 
     patchLv[patchLv > saturate] = saturate
     patchLB[patchLB > saturate] = saturate
@@ -431,16 +431,16 @@ def get_bareL(isvegc, saturate, skipflag = 0):
       bareLV:  upslope vegeted patch length (paired to bare patch)
       
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     bareLV = np.zeros(isvegc.shape, dtype = float)  # veg patch length
     bareL = np.zeros(isvegc.shape, dtype = float)  # upslope interspace patch length (paired to veg patch)
     
-    for i in range(ncol):  # loop over across-slope direction first
+    for i in range(nrow):  # loop over across-slope direction first
         count = 0           
-        for j in range(nrow):    
+        for j in range(ncol):    
             if isvegc[i, j] == 0:    #  if bare, add 1
-                if j >= (nrow -1):  # if we're at the top of the hill                  
+                if j >= (ncol -1):  # if we're at the top of the hill                  
                   bareL[i, j-count:] = count  # record bare length                  
                 count += 1  
                                                         
@@ -457,7 +457,7 @@ def get_bareL(isvegc, saturate, skipflag = 0):
                       Lb = np.where(isvegc[i,j:] == 0)[0][0]                               
                       bareLV[i,j-count:j] = Lb
                   except IndexError:  # bare patch extends to top of hill
-                      bareLV[i,j-count:j] = nrow - j
+                      bareLV[i,j-count:j] = ncol - j
                   count = 0 
     bareLV[bareLV > saturate] = saturate
     bareL[bareL > saturate] = saturate
@@ -468,12 +468,12 @@ def upslope_memory(isvegc,  memory = 3):
     """
     
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     
     dum = isvegc.copy()
     memory = int(memory)
-    for k in range(int(nrow - memory)):
+    for k in range(int(ncol - memory)):
         dum[:, k] = isvegc[:, k:k+memory].sum(1)
     for k in range(1,memory+1):    
         dum[:, -k] = isvegc[:, -k:].sum(1)
@@ -502,12 +502,12 @@ def func_d2wB(isvegc, saturate, weight):
     =  1 for veg cells with a neighboring bare cell upslope
     >  1 for veg cells with bare cells further upslope
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     
     res =  isvegc.copy()
     
-    for i in range(nrow):
+    for i in range(ncol):
         d = isvegc.copy()
         d[:,:i+1] = 1
         res[:,i] = ndimage.distance_transform_edt(d, sampling = (weight, 1))[:, i]   
@@ -523,12 +523,12 @@ def func_d2wV(isvegc, saturate, weight):
     =  1 for veg cells with a neighboring bare cell upslope
     >  1 for veg cells with bare cells further upslope
     """
-    ncol = isvegc.shape[0]
-    nrow = isvegc.shape[1]
+    nrow = isvegc.shape[0]
+    ncol = isvegc.shape[1]
     
     res =  isvegc.copy()
     
-    for i in range(nrow):
+    for i in range(ncol):
         d = 1-isvegc.copy()
         d[:,:i+1] = 1
         res[:,i] = ndimage.distance_transform_edt(d, sampling = (weight, 1))[:, i]   

@@ -64,7 +64,7 @@
 #         DO not include flags
 #     """
 #     keys = ['q1_m2hr', 'Ks', 'dt_sw', 'tr', 'p', 'tmax_scale', 'dt_print',
-#             'save_fluxes', 'save_sve', 'ncol', 'nrow', 'dx',
+#             'save_fluxes', 'save_sve', 'nrow', 'ncol', 'dx',
 #             'veg_type', 'fV', 'grad_fV', 'seed', 'sigma_scale', 'sigma',
 #             'stripe_count', 'downslope', 'spots',
 #             'topo', 'So', 'imodel', 's_scale', 'theta_r', 'theta_s',

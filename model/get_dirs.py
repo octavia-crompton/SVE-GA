@@ -22,10 +22,10 @@ def get_batch_dirs(base_dir):
 
 def get_sim_dirs(batch_dir):
     """
-  input: batch directory
+    Input: batch directory
 
-  get all the simulation directories in the batch directory
-  """
+    get all the simulation directories in the batch directory
+    """
     from glob import glob
     import os
 

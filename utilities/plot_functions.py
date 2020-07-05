@@ -110,7 +110,7 @@ def veg_pcolor(veg, dx=1.0, ax=None):
         pass
 
     bounds = np.linspace(0, 2, 10)
-    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
 
     ax.pcolormesh(xc + dx / 2, yc + dx / 2., veg,
                   norm=norm,
@@ -207,7 +207,7 @@ def arraycolor(array, ax=None,
         cmax = np.nanmax(array.ravel())
 
     bounds = np.linspace(cmin, cmax, 100)
-    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
 
     if cmax == cmin:
         colorbar = False
@@ -296,7 +296,7 @@ def colormap(sim, array, ax=None,
         cmax = np.nanmax(scale_vals)
 
     bounds = np.linspace(cmin, cmax, 100)
-    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
 
     if cmax == cmin:
         colorbar = False
@@ -580,11 +580,11 @@ def create_grid(array, dx):
     xc, yc
     """
 
-    nrow = array.shape[0]
-    ncol = array.shape[1]
+    ncol = array.shape[0]
+    nrow = array.shape[1]
 
-    xc = np.arange(0, ncol * dx, dx) + dx / 2
-    yc = np.arange(0, nrow * dx, dx) + dx / 2
+    xc = np.arange(0, nrow * dx, dx) + dx / 2
+    yc = np.arange(0, ncol * dx, dx) + dx / 2
     xc, yc = np.meshgrid(xc, yc)
 
     return xc, yc
