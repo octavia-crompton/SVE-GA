@@ -1,0 +1,1 @@
+ sed 's/nrow/ncool/g' $fname | sed  's/ncol/nroow/g' | sed 's/nroow/nrow/g' | sed 's/ncool/ncol/g'    > $fname"a"

@@ -226,7 +226,8 @@ def gaussian_micro(params):
     ncol = params['ncol']
     nrow = params['nrow']
     So = params['So']
-    m_So = params['m_So']
+    # m_So = params['m_So']
+    m_So = 1 # WTF?
     m_sigma = params['m_sigma']
 
     x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
@@ -267,99 +268,3 @@ def gaussian_micro(params):
     z = z + micro
 
     return z
-
-# def gaussian_micro(params):
-#
-#     dx = params['dx']
-#     ncol = params['ncol']
-#     nrow = params['nrow']
-#     So = params['So']
-#     m_scale = params['m_scale']
-#     m_sigma = params['m_sigma']
-#     m_edge = params['m_edge']
-#
-#     x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
-#     y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
-#
-#     x, y = np.meshgrid(x, y)
-#     z_max = So * (np.max(x) - np.min(x))
-#     z_max = np.linspace(z_max, 0, nrow + 1)
-#     z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
-#
-#     np.random.seed(0)
-#
-#     micro = sp.rand(ncol + 1, nrow + 1) >= 0.5
-#
-#     micro = micro.astype(float)
-#
-#     blurred = gaussian_filter(micro.astype(float),
-#                               sigma=m_sigma)
-#
-#     Si = (blurred[:, 1:] - blurred[:, :-1]).max()
-#     blurred = blurred * So  / Si / m_scale
-#     blurred -= blurred.mean()
-#
-#     w_width = int(m_edge/dx)
-#
-#     window = signal.gaussian(w_width*2, std=2)
-#     window = np.hstack((window[:w_width],
-#                         np.ones(nrow+1-w_width*2),window[-w_width:] ))
-#     window = np.tile(window, [ncol+1,1])
-#
-#     y_window = signal.gaussian(w_width*2, std=2)
-#
-#     y_window = np.hstack((y_window[:w_width],
-#                         np.ones(ncol+1-w_width*2),y_window[-w_width:] ))
-#     y_window = np.tile(y_window, [nrow+1,1]).T
-#
-#     micro = blurred*window*y_window
-#
-#     z = z + micro
-#
-#     return z
-# def gaussian_micro(params):
-#     """
-#     Simple gaussian microtopography
-#
-#     Parameters
-#     ----------
-#     nrow
-#     ncol
-#     dx
-#     So
-#     m_scale
-#
-#     """
-#
-#     dx = params['dx']
-#     ncol = params['ncol']
-#     nrow = params['nrow']
-#     So = params['So']
-#     m_scale = params['m_scale']
-#     m_sigma = params['m_sigma']
-#
-#     x = np.arange(0, (nrow + 1) * dx - 1e-10, dx)
-#     y = np.arange(0, (ncol + 1) * dx - 1e-10, dx)
-#     x, y = np.meshgrid(x, y)
-#
-#     z_max = So * (np.max(x) - np.min(x))
-#     z_max = np.linspace(z_max, 0, nrow + 1)
-#     z = np.tile(z_max, [ncol + 1]).reshape([ncol + 1, nrow + 1])
-#
-#     np.random.seed(0)
-#
-#     micro = sp.rand(ncol + 1, nrow + 1) >= 0.5
-#
-#     micro = micro.astype(float)
-#
-#
-#     blurred = gaussian_filter(micro.astype(float),
-#                               sigma=m_sigma)
-#
-#     Si = (blurred[1:] - blurred[:-1]).max()
-#
-#     blurred = blurred * So * m_scale / Si
-#
-#     z = z + blurred
-#
-#     return z

@@ -11,7 +11,6 @@ from os.path import dirname
 sys.path.append(dirname(dirname(os.path.abspath(__file__))))
 
 from model.load_model_output import *
-from utilities.search_functions import *
 from utilities.plot_3D_functions import *
 
 def make_plots(base_name, project_name, sim_limit, verbose= False):
@@ -152,13 +151,14 @@ def make_animation_dir(base_dir, project_dir):
     """
     Make figures subdirectories in sim_dir
     """
-    figure_dir = os.path.join(project_dir, 'figures')
+    base_name = os.path.split(base_dir)[1]
+    figure_dir = os.path.join(project_dir, 'figures', base_name)
 
     if not os.path.isdir(figure_dir):
         os.mkdir(figure_dir)
 
-    base_name = os.path.split(base_dir)[1]
-    animation_dir = os.path.join(figure_dir, base_name, "animations")
+    
+    animation_dir = os.path.join(figure_dir,  "animations")
     if not os.path.isdir(animation_dir):
         os.mkdir(animation_dir)
     return animation_dir

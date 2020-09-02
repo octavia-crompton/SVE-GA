@@ -1,7 +1,6 @@
 # coding=utf-8
 """
 Functions for plotting
-TODO: plot_all_inflow delete
 """
 import warnings
 
@@ -16,11 +15,6 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(__file__))
-try:
-    from model.load_model_output import *
-except ModuleNotFoundError:
-    print("No matched hydrographs here")
-
 warnings.filterwarnings('ignore')
 
 plt.style.use('ggplot')
@@ -110,7 +104,7 @@ def veg_pcolor(veg, dx=1.0, ax=None):
         pass
 
     bounds = np.linspace(0, 2, 10)
-    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
 
     ax.pcolormesh(xc + dx / 2, yc + dx / 2., veg,
                   norm=norm,
@@ -207,7 +201,7 @@ def arraycolor(array, ax=None,
         cmax = np.nanmax(array.ravel())
 
     bounds = np.linspace(cmin, cmax, 100)
-    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
 
     if cmax == cmin:
         colorbar = False
@@ -296,7 +290,7 @@ def colormap(sim, array, ax=None,
         cmax = np.nanmax(scale_vals)
 
     bounds = np.linspace(cmin, cmax, 100)
-    norm = colors.BoundaryNorm(boundaries=bounds, nrowors=256)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
 
     if cmax == cmin:
         colorbar = False
@@ -940,48 +934,45 @@ def plot_inflow(sim,  t_f = None, N_profile=5):
     plt.ylabel("h (cm)")
 
 
+def plot_all_inflow(sim, t_f = None, freq=3,
+                    label_axes=True, ax = None):
+    """
+    Plot inflow profile at select times
 
-# def plot_all_inflow(sim, t_f = None, freq=3,
-#                     label_axes=True, ax = None):
-#     """
-#     Plot inflow profile at select times
-#
-#     Parameters:
-#     -----------
-#     sim : dict
-#         SVE simulation
-#     freq : int
-#         plot frequency
-#     """
-#     if not ax:
-#         fig, ax = plt.subplots(1, figsize=(7, 4.5))
-#     else:
-#         fig = plt.gcf()
-#
-#     scale = 3.6e5/sim.Lx
-#     sim['bad'] = sim['hc'] * sim['uc']*scale
-#     if fld == 'qc':
-#         sim['qc'] = sim['xflux0']/sim.dx*scale
-#         sim['qc'][sim['hc'] <= sim.epsh*1.05] = 0
-#
-#
-#
-#     if t_f:
-#         inds = np.where(sim.t_print < t_f)[0]
-#     else:
-#         inds = np.where(np.diff(sim.hc.mean(1).mean(1)) > 1e-6)[0]
-#
-#     for i in inds[::freq]:
-#         ax.plot(sim.xc.mean(0),  sim['qc'].mean(1)[i], 'b--')
-#
-#     if label_axes:
-#         ax.set_xlabel('x')
-#         ax.set_ylabel("q (cm/hr)")
-#     else:
-#         ax.set_xticklabels("")
-#         ax.set_yticklabels("")
-#     ax.set_xlim(0, )
-#     return fig, ax
+    Parameters:
+    -----------
+    sim : dict
+        SVE simulation
+    freq : int
+        plot frequency
+    """
+    if not ax:
+        fig, ax = plt.subplots(1, figsize=(7, 4.5))
+    else:
+        fig = plt.gcf()
+
+    scale = 3.6e5/sim.Lx
+
+    sim['qc'] = sim['xflux0']/sim.dx*scale
+    sim['qc'][sim['hc'] <= sim.epsh*1.05] = 0
+
+
+    if t_f:
+        inds = np.where(sim.t_print < t_f)[0]
+    else:
+        inds = np.where(np.diff(sim.hc.mean(1).mean(1)) > 1e-6)[0]
+
+    for i in inds[::freq]:
+        ax.plot(sim.xc.mean(0),  sim['qc'].mean(1)[i], 'b--')
+
+    if label_axes:
+        ax.set_xlabel('x')
+        ax.set_ylabel("q (cm/hr)")
+    else:
+        ax.set_xticklabels("")
+        ax.set_yticklabels("")
+    ax.set_xlim(0, )
+    return fig, ax
 
 def plot_all_profiles(sim, t_f = None, freq=3, fld = "qc",
                     label_axes=True, ax = None):

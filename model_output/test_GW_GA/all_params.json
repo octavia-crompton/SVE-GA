@@ -1,0 +1,47 @@
+{
+  "batch_dict" :    {                  
+    "p" : [5.0]
+    },
+  "sim_dict" : {         
+    "Ks" : [1.0, 2.0,3.0],    
+    "H_i" : [-0.1,-0.05,0]
+    },
+  "common_dict" : {      
+        "tr" : 20,                 
+        "tmax_scale" : 4,     
+        "dt_print" : 30,
+        "dt_sw" : 0.01,
+        "save_fluxes" : 1,
+        "save_sve" : 1,
+        "Lx" : 50,
+        "Ly" : 5,
+        "dx" : 1.0,     
+        "veg_type" : "randv",
+        "fV" : 1.0,   
+        "grad_fV" : 0,
+        "seed": 0,
+        "sigma_scale" : 0, 
+        "sigma" : 0,   
+        "stripe_count" : 0,
+        "downslope" : 0,
+        "spots" : 0,
+        "topo" : "plane",             
+        "So" : 0.01,  
+        "imodel" : 1,
+        "Ao" : 0,
+        "s_scale" : 1000,   
+        "theta_r": 0.0378, 
+        "theta_s": 0.472,
+        "theta_i" : 0.232,
+        "scheme" : "mann",
+        "alpha" : 0.1,
+        "alphaB" : 0.03,           
+        "itype1" : 1,
+        "itype3" : 0,
+        "itype2" : 1,
+        "itype4" : 1,
+        "q1_m2hr" : 0,
+        "flags": [],
+        "epsh" : 2e-4
+         }
+}

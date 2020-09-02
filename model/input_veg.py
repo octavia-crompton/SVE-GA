@@ -266,11 +266,12 @@ def wrap_image_veg(params, path=None):
     -------
     veg_nodes
 
-    TODO: test  compatibility w/tiff, png, pklz
+    TODO: test compatibility w/tiff, png, pklz
     """
 
     filepath = dirname(dirname(path))
-    filename = '/'.join([filepath, params['veg_dir'], params['v'] + params['veg_ext']])
+    filename = '/'.join([filepath, params['veg_dir'], 
+        params['v'] + params['veg_ext']])
 
     ncol = params['ncol']
     nrow = params['nrow']

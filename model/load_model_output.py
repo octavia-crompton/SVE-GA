@@ -109,6 +109,7 @@ def flatten_nested(nested_dict):
     return pd.Series(flattened_dict)
 
 
+
 def summarize_param_files(project_dir):
     """
     Summarizes all the param files in the project directory Searches the
@@ -126,11 +127,24 @@ def summarize_param_files(project_dir):
     output_dir = os.path.join(project_dir, 'model_output')
 
     model_output_summary = pd.DataFrame()
-    for base_name in os.listdir(output_dir):
+    
+    base_names = [d for d in os.listdir(output_dir) if '.DS_Store' not in d]
+
+    for base_name in base_names:
+
+        base_dir = os.path.join(output_dir, base_name)
+
+        subdir = os.listdir(base_dir)
+
+        subdir = [d for d in subdir if  os.path.isdir(
+                os.path.join(base_dir, d))]
+
         if base_name == '.DS_Store':
-            pass
+            continue
         elif not os.path.isdir(os.path.join(output_dir, base_name)):
-            pass
+            continue
+        elif len(subdir) ==0 :
+            continue
         else:
             base_dir = os.path.join(output_dir, base_name)
             all_params = load_all_params(base_dir)
@@ -140,6 +154,7 @@ def summarize_param_files(project_dir):
             model_output_summary = model_output_summary.append(params)
 
     return model_output_summary.T
+
 
 
 def filter_core(core, criteria, quality=None):
@@ -194,24 +209,26 @@ def load_core(base_dir):
     return core
 
 
-def load_sims(sim_dir, summarize = True):
+def load_sims(base_dir, summarize = True):
     """
     Loads simulations from base_core or from batch_core
     """
-    if "base_core.pklz" in os.listdir(sim_dir):
-        core = load_core(sim_dir)
+    if "base_core.pklz" in os.listdir(base_dir):
+        core = load_core(base_dir)
+
     else:
-        core = load_batches(sim_dir)
+        core = load_batches(base_dir)
     if summarize:
         core = summary_update(core)
+
     return core
 
 
-def load_batches(sim_dir):
+def load_batches(base_dir):
     """
     Load sim batches where no base_core.pklz has been created
     """
-    batch_dirs = list_batch_dirs(sim_dir)
+    batch_dirs = list_batch_dirs(base_dir)
     core = pd.DataFrame()
     for batch_dir in batch_dirs:
         s = load_pklz(batch_dir, "batch_core.pklz")
